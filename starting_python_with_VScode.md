@@ -96,6 +96,7 @@ library your site is using:
     ],
     "console": "integratedTerminal",
     "debugOptions": [
+        "RedirectOutput",
         "WaitOnAbnormalExit",
         "WaitOnNormalExit"
     ]
