@@ -120,7 +120,8 @@ using the `if __name__=='__main__':` idiom,
 ## Other parameters
 
 To finish I also copy and explain the rest of my configuration, pick what you 
-prefer.
+prefer. Hovering the property name in the settings edition panel will provide 
+you explanations about what each setting does.
 
 ```json
     "workbench.editor.enablePreview": false,
@@ -129,6 +130,8 @@ prefer.
     "explorer.openEditors.visible": 4,
     "editor.rulers": [80],
     "window.reopenFolders": "all",
+    "files.insertFinalNewline": true,
+    "editor.renderLineHighlight": "all",
 ```
 
 Do not show all files in the explorer panel:
