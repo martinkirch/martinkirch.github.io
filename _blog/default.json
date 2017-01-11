@@ -1,0 +1,17 @@
+{
+    "render_dir": ".",
+    "template_dir": "_blog/templates",
+    "pages_dir": "_blog/pages",
+    "site": {
+        "url": "martinkirch.github.io",
+        "title": "Martin's notes",
+        "author": "Martin Kirchgessner",
+        "briefing": "Martin's (random) notes.",
+        "links": {
+          "All posts": "/",
+          "Tags": "/tags.html"
+        }
+    },
+    "date_format": "%Y-%m-%d %H:%M",
+    "items_per_page": 6
+}

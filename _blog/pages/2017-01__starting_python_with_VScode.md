@@ -1,6 +1,10 @@
-# Tweaking Visual Studio Code for Python
+title: Tweaking Visual Studio Code for Python
+briefing: Installing and configuring VS Code 
+date_time: 2017-01-11 23:35
+slug: configuring-vs-code-for-python-pyramid
+tags: python, ide, pyramid
+type: post
 
-*First publication: 14 December 2016*
 
 As I recently became a full-time Python developer (often using the 
 [Pyramid framework](https://trypyramid.com/)) I tried to find a cool IDE, and 
@@ -27,11 +31,9 @@ Linting is
 Run `pip install pylint` in each virtual environment you work with. 
 The first time, create yourself a pylint configuration file with :
 
-```
-pylint --generate-rcfile >> ~/.pylintrc
-```
+    pylint --generate-rcfile >> ~/.pylintrc
 
-TODO: configuration suggestions.
+Or you can use [my own .pylintrc file](/2017-01-11/pylintrc). *TODO CHECK LINK.*
 
 It's slow, but it's great. 
 I'm still trying to find how to speed up linting, 
