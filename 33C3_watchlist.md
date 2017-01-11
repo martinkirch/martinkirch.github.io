@@ -23,5 +23,11 @@ bookers' countermeasures, but it would put the fun out of it.
 A saga around the latest American election and a useful reminder that voting 
 machines are far from saving democracies.
 
+[Exploiting PHP7 unserialize teaching a new dog old tricks](https://media.ccc.de/v/33c3-7858-exploiting_php7_unserialize)
+
+Back to basics, or how the speaker puts it: "while programming with a high-level
+language, you're still vulnerable to low-level bugs". This will only make sense 
+for people who ever encountered `gdb`.
+
 
 Many thanks to the speakers and organizers for sharing this !
