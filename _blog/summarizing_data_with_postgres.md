@@ -14,11 +14,6 @@ select min(weight), max(weight), avg(weight), stddev(weight) from lexicon.keywor
 looks good!
 
 
-## Look at your data, they say
-
-
-
-
 
 ## SQL (and more statistics) to the rescue
 
@@ -54,3 +49,10 @@ SELECT PERCENTILE_CONT(array[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]) WITHI
 ---------------------
  {0,0,0,0,0,0,1,1,2}
 ```
+
+
+## Look at your data, they say
+
+sampling !
+
+order by random() limit 10;
