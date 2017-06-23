@@ -1,5 +1,8 @@
 
 
+How to guess efficiently your data's distribution with Postgres
+
+
 
 ```sql
 select min(weight), max(weight), avg(weight), stddev(weight) from lexicon.keyword ;
