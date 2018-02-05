@@ -22,13 +22,11 @@ To assess that this score is well-distributed among thousands or millions of row
 the first thing that comes to mind can be the four classics: 
 minimum, maximum, average and standard deviation.
 
-```sql
-select min(score), max(score), avg(score), stddev(score) from tags ;
-
- min | max  |       avg        |      stddev
------+------+------------------+------------------
-   0 | 8419 | 1.41718822979916 | 28.1351262297869
-```
+    SELECT min(score), max(score), avg(score), stddev(score) FROM tags ;
+    
+     min | max  |       avg        |      stddev
+    -----+------+------------------+------------------
+       0 | 8419 | 1.41718822979916 | 28.1351262297869
 
 But from here it's hard to tell if `score` will fit any usage,
 this just tells us the range and precision we can expect when manipulating `score`.
@@ -36,33 +34,31 @@ A standard deviation so much greater than the average is surprising, though.
 Its meaning will get clearer with another method.
 
 
-## The hurried man's histogram
+## The hurried programmer's histogram
 
 Other statistic functions are interesting in this case,
 because they can be as informative as an histogram: 
-(median)[https://en.wikipedia.org/wiki/Median] or, 
-much better, (decile)[https://en.wikipedia.org/wiki/Decile]
-and (percentile)[https://en.wikipedia.org/wiki/Percentile].
+[median](https://en.wikipedia.org/wiki/Median) or, 
+much better, [decile](https://en.wikipedia.org/wiki/Decile)
+and [percentile](https://en.wikipedia.org/wiki/Percentile).
 
 The SQL standard introduced (in a 200X edition) the `PERCENTILE_CONT` operator,
 which can compute any percentile (thus including median, decile, quartile...)
 of a distribution, over a complete table or a sub-group.
 Here is the precise definition from the 
-(Oracle documentation)[http://docs.oracle.com/cd/B19306_01/server.102/b14200/functions110.htm]:
+[Oracle documentation](http://docs.oracle.com/cd/B19306_01/server.102/b14200/functions110.htm):
 
 > PERCENTILE_CONT is an inverse distribution function that assumes a continuous distribution model. It takes a percentile value and a sort specification, and returns an interpolated value that would fall into that percentile value with respect to the sort specification. Nulls are ignored in the calculation.
 
 In PostGres9.4 and up we have
-(ordered set aggregates)[https://www.depesz.com/2014/01/11/waiting-for-9-4-support-ordered-set-within-group-aggregates/]
+[ordered set aggregates](https://www.depesz.com/2014/01/11/waiting-for-9-4-support-ordered-set-within-group-aggregates/)
 which are needed to find those percentiles. Let's try it on our tags:
 
-```sql
-# SELECT PERCENTILE_CONT(array[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]) WITHIN GROUP(ORDER by score) FROM tags;
-
-   percentile_cont
----------------------
- {0,0,0,0,0,0,1,1,2}
-```
+    SELECT PERCENTILE_CONT(array[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]) WITHIN GROUP(ORDER by score) FROM     tags;
+    
+       percentile_cont
+    ---------------------
+     {0,0,0,0,0,0,1,1,2}
 
 This shows that the majority of our rows have a null score.
 From here we can say these scores are innapropriate for sorting.
@@ -75,9 +71,7 @@ However that doesn't mean you should spend hours on tracing fancy graphs!
 Sampling a few times is enough to catch a wandering elephant in your corridor.
 With Postgres it's _very_ easy:
 
-```sql
-SELECT * FROM tags ORDER BY random() LIMIT 10;
-```
+    SELECT * FROM tags ORDER BY random() LIMIT 10;
 
 In our example this short line would have been enough to
 understand that the majority of our rows have a null score.

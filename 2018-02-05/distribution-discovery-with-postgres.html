@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title> Quickly guess your data's distribution with PostGreSQL - Martin's notes </title>
+    <meta name="description" content="Given a million scores, how to quickly have an idea of their distribution?"/>
+    <meta name="keywords" content=" data, postgres, statistics" />
+
+    <!-- Bootstrap -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.5/paper/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+
+    <link href="/pygments.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="/">Martin's notes</a>
+        </div>
+        <ul class="nav navbar-nav navbar-right">
+            
+                
+                    <li><a href="/">All posts</a></li>
+                
+                    <li><a href="/tags.html">Tags</a></li>
+                
+            
+          </ul>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="row">
+
+        <div class="col-md-8 col-md-offset-2">
+            
+    <div itemscope itemtype="http://schema.org/NewsArticle">
+    <meta itemscope itemprop="mainEntityOfPage"  itemType="https://schema.org/WebPage" itemid="http://martinkirch.github.io/2018-02-05/distribution-discovery-with-postgres.html"/>
+    <div class="page-header">
+      <h1 itemprop="name">Quickly guess your data's distribution with PostGreSQL</h1>
+      
+    </div>
+      <section itemprop="articleBody">
+        <p>In this post we get back to basics!</p>
+<p>When designing a scoring function we quickly need to know how scores are distributed
+over our data. The distribution you need of course depends on the final purpose
+of the scoring function. But wether it's for ordering or for selecting rows
+above/below some threshold, in all cases a few Postgres functions are enough
+to get an overview of your scores' distribution.
+These can be faster and simpler than plotting, especially when working with millions of rows.</p>
+<h2>Well-known statistics</h2>
+<p>Let's say we assigned a <code>score</code> to all rows in our <code>tags</code> table.
+To assess that this score is well-distributed among thousands or millions of rows,
+the first thing that comes to mind can be the four classics: 
+minimum, maximum, average and standard deviation.</p>
+<div class="codehilite"><pre><span></span>SELECT min(score), max(score), avg(score), stddev(score) FROM tags ;
+
+ min | max  |       avg        |      stddev
+-----+------+------------------+------------------
+   0 | 8419 | 1.41718822979916 | 28.1351262297869
+</pre></div>
+
+
+<p>But from here it's hard to tell if <code>score</code> will fit any usage,
+this just tells us the range and precision we can expect when manipulating <code>score</code>.
+A standard deviation so much greater than the average is surprising, though. 
+Its meaning will get clearer with another method.</p>
+<h2>The hurried programmer's histogram</h2>
+<p>Other statistic functions are interesting in this case,
+because they can be as informative as an histogram: 
+<a href="https://en.wikipedia.org/wiki/Median">median</a> or, 
+much better, <a href="https://en.wikipedia.org/wiki/Decile">decile</a>
+and <a href="https://en.wikipedia.org/wiki/Percentile">percentile</a>.</p>
+<p>The SQL standard introduced (in a 200X edition) the <code>PERCENTILE_CONT</code> operator,
+which can compute any percentile (thus including median, decile, quartile...)
+of a distribution, over a complete table or a sub-group.
+Here is the precise definition from the 
+<a href="http://docs.oracle.com/cd/B19306_01/server.102/b14200/functions110.htm">Oracle documentation</a>:</p>
+<blockquote>
+<p>PERCENTILE_CONT is an inverse distribution function that assumes a continuous distribution model. It takes a percentile value and a sort specification, and returns an interpolated value that would fall into that percentile value with respect to the sort specification. Nulls are ignored in the calculation.</p>
+</blockquote>
+<p>In PostGres9.4 and up we have
+<a href="https://www.depesz.com/2014/01/11/waiting-for-9-4-support-ordered-set-within-group-aggregates/">ordered set aggregates</a>
+which are needed to find those percentiles. Let's try it on our tags:</p>
+<div class="codehilite"><pre><span></span>SELECT PERCENTILE_CONT(array[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]) WITHIN GROUP(ORDER by score) FROM     tags;
+
+   percentile_cont
+---------------------
+ {0,0,0,0,0,0,1,1,2}
+</pre></div>
+
+
+<p>This shows that the majority of our rows have a null score.
+From here we can say these scores are innapropriate for sorting.</p>
+<h2>"Look at your data" also means "start by looking at samples"</h2>
+<p>You likely already heard this advice, but it's worth repeating: <strong>look at your data</strong>.
+However that doesn't mean you should spend hours on tracing fancy graphs!
+Sampling a few times is enough to catch a wandering elephant in your corridor.
+With Postgres it's <em>very</em> easy:</p>
+<div class="codehilite"><pre><span></span>SELECT * FROM tags ORDER BY random() LIMIT 10;
+</pre></div>
+
+
+<p>In our example this short line would have been enough to
+understand that the majority of our rows have a null score.</p>
+<p>So here's the 2 minutes-check-list you should always start with in this task:</p>
+<ol>
+<li>look at a few dozens samples</li>
+<li>compute basic statistics</li>
+<li>compute deciles</li>
+</ol>
+<p>Then you will likely be able to decide if your scoring function fits your needs or not.</p>
+      </section>
+      <small>
+      
+        <a href="/tag/data.html">
+            <span class="label label-default" itemprop="about">data</span>
+        </a>
+      
+        <a href="/tag/postgres.html">
+            <span class="label label-default" itemprop="about">postgres</span>
+        </a>
+      
+        <a href="/tag/statistics.html">
+            <span class="label label-default" itemprop="about">statistics</span>
+        </a>
+      
+      
+          <p class="text-right">
+              Posted on <span itemprop="datePublished">2018-02-05</span>
+              <span itemprop="author" itemscope itemtype="https://schema.org/Person">
+                by <span itemprop="name">Martin Kirchgessner</span>
+              </span>
+          </p>
+      
+      </small>
+    </div>
+
+        </div>
+      </div>
+    </div>
+    <hr />
+    <footer>
+      <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+              
+            </div>
+            <div class="col-md-4">
+              <p class="text-center"><small>martinkirch.github.io &copy; 2018</small></p>
+            </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha256-KXn5puMvxCw+dAYznun+drMdG1IFl3agK0p/pqT9KAo= sha512-2e8qq0ETcfWRI4HJBzQiA3UoyFk6tbNyG+qSaIBZLyW9Xf3sWZHN/lxe9fTh1U45DpPf07yj94KsUHHWe4Yk1A==" crossorigin="anonymous"></script>
+  </body>
+</html>
