@@ -1,6 +1,6 @@
 title: Quickly guess your data's distribution with PostGreSQL
 briefing: Given a million scores, how to quickly have an idea of their distribution?
-date_time: 2018-01-28 20:00
+date_time: 2018-02-05 20:00
 slug: distribution-discovery-with-postgres
 tags: data, postgres, statistics
 type: post
@@ -8,8 +8,8 @@ type: post
 In this post we get back to basics!
 
 When designing a scoring function we quickly need to know how scores are distributed
-over our data. The distribution you need of course depend on the final purpose
-of the scoring function. But wether it's for ordering or selecting rows
+over our data. The distribution you need of course depends on the final purpose
+of the scoring function. But wether it's for ordering or for selecting rows
 above/below some threshold, in all cases a few Postgres functions are enough
 to get an overview of your scores' distribution.
 These can be faster and simpler than plotting, especially when working with millions of rows.
@@ -24,6 +24,7 @@ minimum, maximum, average and standard deviation.
 
 ```sql
 select min(score), max(score), avg(score), stddev(score) from tags ;
+
  min | max  |       avg        |      stddev
 -----+------+------------------+------------------
    0 | 8419 | 1.41718822979916 | 28.1351262297869
@@ -53,9 +54,7 @@ Here is the precise definition from the
 
 In PostGres9.4 and up we have
 (ordered set aggregates)[https://www.depesz.com/2014/01/11/waiting-for-9-4-support-ordered-set-within-group-aggregates/]
-which means we can find deciles or median.
-
-Let's try this on our tags:
+which are needed to find those percentiles. Let's try it on our tags:
 
 ```sql
 # SELECT PERCENTILE_CONT(array[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]) WITHIN GROUP(ORDER by score) FROM tags;
@@ -80,7 +79,7 @@ With Postgres it's _very_ easy:
 SELECT * FROM tags ORDER BY random() LIMIT 10;
 ```
 
-In our example this short line (repeated a few times) would have been enough to
+In our example this short line would have been enough to
 understand that the majority of our rows have a null score.
 
 So here's the 2 minutes-check-list you should always start with in this task:
