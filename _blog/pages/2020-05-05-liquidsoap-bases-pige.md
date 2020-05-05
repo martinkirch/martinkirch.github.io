@@ -126,9 +126,8 @@ Si vous avez une interface graphique (Gnome, KDE, Mint, ...) vous avez déjà
 pulesaudio/ALSA, mais dans le cas contraire il faut les installer.
 Par exemple sous Debian :
 
-```
-sudo apt install alsa-utils pulseaudio
-```
+    :::bash
+    sudo apt install alsa-utils pulseaudio
 
 `alsa-utils` fournira le précieux `alsamixer`.
 Attention : après installation, les niveaux/mute/routes sont souvent pourris,
@@ -138,11 +137,10 @@ donc lancez `alsamixer` dès maintenant pour vérifier.
 ALSA suffit, mais si vous aimez l'aventure il faut aussi activer `pulseaudio`,
 en tant que l'utilisateur qui va faire la radio (*pas* en tant que root) :
 
-```
-systemctl --user enable pulseaudio
-systemctl --user start pulseaudio
-systemctl --user status pulseaudio
-```
+    :::bash
+    systemctl --user enable pulseaudio
+    systemctl --user start pulseaudio
+    systemctl --user status pulseaudio
 
 La dernière commande doit afficher `Active: active (running)` en vert.
 
@@ -191,12 +189,14 @@ _"35% de titres francophones, dont 25% au moins du total provenant de nouveaux t
 
 La source la plus simple est `single`, qui lit un fichier en boucle :
 
+    :::ocaml
     radio = single("/home/radio/Musique/Michel/Le vrai Michel/01 Michel en illimité.m4a")
 
 C'est un script valide ... mais qui ne fera rien, car rien n'est branché pour
 consommer cette source. Ajoutons donc une sortie vers la carte son
 et une sortie Icecast encodée en `ogg`. Toutes deux reprennent `source`:
 
+    :::ocaml
     output.alsa(radio)
 
     output.icecast(%vorbis,
@@ -217,6 +217,7 @@ Or, avec ce qu'on vient d'écrire, Liquidsoap va les garder synchronisées de tr
 ce qui risque de créer des glitches dans la carte son.
 Pour éviter cela on va explicitement séparer les `clocks` et insérer un `buffer` :
 
+    :::ocaml
     output.alsa(radio)
 
     clock.assign_new(, [
@@ -254,6 +255,7 @@ quatre fois par heure. Bref, des jingles.
 Si `/home/radio/jingles` est le répertoire dans lequel j'entasse mes jingles,
 une source de jingles peut s'écrire :
 
+    :::ocaml
     jingles = playlist("/home/radio/jingles")
 
 Remplaçons `playlist` par `playlist.safe`,
@@ -272,6 +274,7 @@ dans le répertoire, c'est plus pratique pour mettre en rotation (ou retirer) un
 
 Ces trois modifications s'écrivent :
 
+    :::ocaml
     playlist.safe("/home/radio/jingles", mode="random", reload_mode="watch")
 
 Cette source lit des jingles sans arrêt - enfin, dès qu'on la donne à une sortie.
@@ -280,6 +283,7 @@ On va donc intercaler l'opérateur `delay`,
 qui lit une piste de la source puis attend un certain temps avant de s'annoncer
 comme source disponible :
 
+    :::ocaml
     jingles = delay(780.,
         playlist.safe("/home/radio/jingles", mode="random", reload_mode="watch")
     )
@@ -292,6 +296,7 @@ Et justement, à cause du `delay` les jingles ne seront plus disponibles
 pendant quelques minutes après la lecture d'un jingle.
 Nos sources complètent ressemblent donc à:
 
+    :::ocaml
     musique = single("/home/radio/Musique/Michel/Le vrai Michel/01 Michel en illimité.m4a")
 
     jingles = delay(780.,
@@ -317,6 +322,7 @@ On aime bien *Michel en illimité* mais il est temps de changer de disque.
 Disons que toute notre musique est dans un dossier `/home/radio/Musique`.
 On peut construire une source qui va piocher aléatoirement dans ce dossier en écrivant :
 
+    :::ocaml
     playlist("/home/radio/Musique")
 
 Comme on le disait plus haut : Liquidsoap ne veut que des sources sûres.
@@ -327,7 +333,6 @@ Une source non sûre ne peut pas être envoyée directement vers une sortie,
 donc si on ajoute notre `playlist` dans la liste de `fallback` Liquidsoap nous enverra ballader dès le lancement.
 On va donc tricher en utilisant `mksafe`,
 qui remplace les éventuels indisponibilités de la source par un silence.
-
 
 Par ailleurs, les fichiers du répertoire ne sont scannés qu'à la création de la source.
 Mais au fil du temps on aimerait bien ajouter/retirer des fichiers
@@ -348,12 +353,14 @@ silences qui zappe la piste en cours, dans ce cas.
 Cet opérateur c'est `skip_blank`, qui avec les paramètres suivants zappera la piste en cours
 si on reste sous -50dB pendant au moins 10 secondes :
 
+    :::ocaml
     skip_blank(source, max_blank=10., threshold=-50.)
 
 Si vous non plus vous n'aimez pas les blancs d'antenne je recommande de
 carrément mettre `skip_blank` en dernier opérateur avant les sorties.
 Le début de notre script ressemblera donc à :
 
+    :::ocaml
     musique = playlist(reload=3600, "/home/radio/Musique")
 
     jingles = delay(780.,
@@ -377,6 +384,7 @@ on peut aussi s'aider de Liquidsoap.
 Si l'on répartit les chansons françaises, les sorties récentes et le reste dans trois répertoires différents,
 on peut en faire une source pour chacun :
 
+    :::ocaml
     musique = playlist(reload=3600, "/home/radio/Musique/TOUT")
     musique_FR = playlist(reload=3600, "/home/radio/Musique/FR")
     musique_recente = playlist(reload=3600, "/home/radio/Musique/AIRPLAY/")
@@ -385,6 +393,7 @@ Puis utiliser l'opérateur `random` pour créer une nouvelle source qui combine 
 Par défaut `random` pioche a égalité dans les différentes sources qu'on lui donne,
 mais on peut lui passer une liste de valeurs, `weights`, pour piper les dés :
 
+    :::ocaml
     playlist_quota = random([musique, musique_FR, musique_recente], weights=[40,35,25])
 
 Attention, il doit y avoir autant d'entrées dans la liste `weights` que dans la liste de sources,
@@ -402,6 +411,7 @@ Si le reste du temps on veut piocher uniquement dans `musique`
 on peut utiliser l'opérateur `switch` pour choisir une source en fonction de l'horaire.
 Avec les sources créées dans auparavant :
 
+    :::ocaml
     semaine_musicale = switch([
       ({ (1w or 2w or 3w or 4w or 5w) and 6h30-22h30 }, playlist_quota),
       ({ (6w or 7w) and 8h-22h30 }, playlist_quota),
@@ -425,6 +435,7 @@ on utilise alors une source `single` qui pointe un fichier,
 que vous pouvez remplacer par un nouvel épisode au fur et à mesure.
 Ce qui donne :
 
+    :::ocaml
     single("/home/radio/emissions/superemission/EpisodeCourant.flac")
 
 Attention les meta-données (dont le titre) ne sont pas re-chargées si le fichier change
@@ -433,6 +444,7 @@ pendant que Liquidsoap tourne.
 Si vous pre-chargez plusieurs épisodes, vous pouvez utiliser `playlist` et
 pointer vers une répertoire, par exemple en faisant
 
+    :::ocaml
     mksafe(playlist("/home/radio/emissions/superemission", mode="normal", reload_mode="watch"))
 
 Grâce à `mode="normal"` la liste sera prise dans l'ordre des noms de fichiers,
@@ -448,6 +460,7 @@ Disons que la source de votre émission s'appelle `superemission`,
 on a plus qu'a l'intégrer au `switch` musical
 avec une condition pour la passer le Samedi à 12h ?
 
+    :::ocaml
     superemission = single("/home/radio/emissions/superemission/EpisodeCourant.flac")
 
     semaine_musicale = switch([
@@ -465,6 +478,7 @@ qu'à la fin de chaque piste. Ce qui veut dire que :
 Pour pallier à cela, on va plutôt créer ajouter un `fallback` et un `switch`
 dédiés aux programmes qui doivent partir à l'heure :
 
+    :::ocaml
     emissions = switch([
       ({ 6w12h00m }, superemission),
     ])
@@ -481,11 +495,13 @@ A la différence de celui des jingles, dans ce cas on désactive `track_sensitiv
 c'est à dire que dès qu'une source plus prioritaire devient active, on l'enclenche
 (par défaut, `fallback` attend la fin de piste en cours pour re-évaluer les disponibilités).
 
+    :::ocaml
     base = fallback([emissions, fond_musical], track_sensitive=false)
 
 Comme c'est un changement de programme potentiellement brutal,
 on va ajouter un opérateur de crossfade :
 
+    :::ocaml
     def crossfade_3s(a,b)
       add(normalize=false,
           [ fade.in(duration=3.,b),
@@ -497,6 +513,7 @@ qui liste la fonction de transition à utiliser à la fin de chaque source ;
 donc la liste `transitions` doit faire la même longueur que la liste de sources.
 Ce qui donne :
 
+    :::ocaml
     base = fallback([emissions, fond_musical], track_sensitive=false,
       transitions=[crossfade_3s, crossfade_3s])
 
@@ -580,6 +597,7 @@ On peut brancher le signal qui part à l'antenne sur l'entrée audio de notre ma
 et y lancer un script qui ne sert qu'à la pige.
 Ce script ne contiendra que les deux blocs ci-dessous :
 
+    :::ocaml
     output.file(%flac,
         "/mnt/pige/%Y-%m-%d/%Hh%M_%S.flac",
         in(),
@@ -594,6 +612,7 @@ dans un répertoire par jour, dans `/mnt/pige`
 On ajoute ensuite un ménage automatique des fichiers et répertoires
 agés de plus d'un mois :
 
+    :::ocaml
     exec_at(freq=3600., pred={ true },
         fun () -> list.iter(fun(msg) -> log(msg, label="nettoyeur_de_pige"),
             list.append(

@@ -88,11 +88,12 @@ These can be faster and simpler than plotting, especially when working with mill
 To assess that this score is well-distributed among thousands or millions of rows,
 the first thing that comes to mind can be the four classics: 
 minimum, maximum, average and standard deviation.</p>
-<pre class="codehilite"><code>SELECT min(score), max(score), avg(score), stddev(score) FROM tags ;
+<div class="codehilite"><pre><span></span><code><span class="k">SELECT</span> <span class="k">min</span><span class="p">(</span><span class="n">score</span><span class="p">),</span> <span class="k">max</span><span class="p">(</span><span class="n">score</span><span class="p">),</span> <span class="k">avg</span><span class="p">(</span><span class="n">score</span><span class="p">),</span> <span class="n">stddev</span><span class="p">(</span><span class="n">score</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">tags</span> <span class="p">;</span>
 
- min | max  |       avg        |      stddev
------+------+------------------+------------------
-   0 | 8419 | 1.41718822979916 | 28.1351262297869</code></pre>
+ <span class="k">min</span> <span class="o">|</span> <span class="k">max</span>  <span class="o">|</span>       <span class="k">avg</span>        <span class="o">|</span>      <span class="n">stddev</span>
+<span class="c1">-----+------+------------------+------------------</span>
+   <span class="mi">0</span> <span class="o">|</span> <span class="mi">8419</span> <span class="o">|</span> <span class="mi">1</span><span class="p">.</span><span class="mi">41718822979916</span> <span class="o">|</span> <span class="mi">28</span><span class="p">.</span><span class="mi">1351262297869</span>
+</code></pre></div>
 
 
 <p>But from here it's hard to tell if <code>score</code> will fit any usage,
@@ -116,11 +117,12 @@ Here is the precise definition from the
 <p>In PostGres9.4 and up we have
 <a href="https://www.depesz.com/2014/01/11/waiting-for-9-4-support-ordered-set-within-group-aggregates/">ordered set aggregates</a>
 which are needed to find those percentiles. Let's try it on our tags:</p>
-<pre class="codehilite"><code>SELECT PERCENTILE_CONT(array[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]) WITHIN GROUP(ORDER by score) FROM     tags;
+<div class="codehilite"><pre><span></span><code><span class="k">SELECT</span> <span class="n">PERCENTILE_CONT</span><span class="p">(</span><span class="nb">array</span><span class="p">[</span><span class="mi">0</span><span class="p">.</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">6</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">7</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">8</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">9</span><span class="p">])</span> <span class="n">WITHIN</span> <span class="k">GROUP</span><span class="p">(</span><span class="k">ORDER</span> <span class="k">by</span> <span class="n">score</span><span class="p">)</span> <span class="k">FROM</span>     <span class="n">tags</span><span class="p">;</span>
 
-   percentile_cont
----------------------
- {0,0,0,0,0,0,1,1,2}</code></pre>
+   <span class="n">percentile_cont</span>
+<span class="c1">---------------------</span>
+ <span class="err">{</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="err">}</span>
+</code></pre></div>
 
 
 <p>This shows that the majority of our rows have a null score.
@@ -130,7 +132,8 @@ From here we can say these scores are innapropriate for sorting.</p>
 However that doesn't mean you should spend hours on tracing fancy graphs!
 Sampling a few times is enough to catch a wandering elephant in your corridor.
 With Postgres it's <em>very</em> easy:</p>
-<pre class="codehilite"><code>SELECT * FROM tags ORDER BY random() LIMIT 10;</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="err">SELECT * FROM tags ORDER BY random() LIMIT 10;</span>
+</code></pre></div>
 
 
 <p>In our example this short line would have been enough to

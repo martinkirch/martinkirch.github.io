@@ -146,9 +146,10 @@ C'est un peu plus long et lourd (ici <code>~/.opam</code> consomme 1.2GB) mais p
 après <code>apt remove gringo</code>).
 Puis, en tant que l'utilisateur qui lancera Liquidsoap, lancer <code>opam init</code>, répondre avec entrain <code>y</code> aux deux questions,
 et voilà enfin les deux commandes d'installation :</p>
-<pre class="codehilite"><code>opam depext taglib mad lame vorbis opus cry samplerate alsa pulseaudio faad fdkaac flac inotify ladspa magic ogg shine soundtouch ssl xmlplaylist yojson liquidsoap
+<div class="codehilite"><pre><span></span><code><span class="n">opam</span> <span class="n">depext</span> <span class="n">taglib</span> <span class="n">mad</span> <span class="n">lame</span> <span class="n">vorbis</span> <span class="n">opus</span> <span class="n">cry</span> <span class="n">samplerate</span> <span class="n">alsa</span> <span class="n">pulseaudio</span> <span class="n">faad</span> <span class="n">fdkaac</span> <span class="n">flac</span> <span class="n">inotify</span> <span class="n">ladspa</span> <span class="n">magic</span> <span class="n">ogg</span> <span class="n">shine</span> <span class="n">soundtouch</span> <span class="n">ssl</span> <span class="n">xmlplaylist</span> <span class="n">yojson</span> <span class="n">liquidsoap</span>
 
-opam install taglib mad lame vorbis opus cry samplerate alsa pulseaudio faad fdkaac flac inotify ladspa magic ogg shine soundtouch ssl xmlplaylist yojson liquidsoap</code></pre>
+<span class="n">opam</span> <span class="n">install</span> <span class="n">taglib</span> <span class="n">mad</span> <span class="n">lame</span> <span class="n">vorbis</span> <span class="n">opus</span> <span class="n">cry</span> <span class="n">samplerate</span> <span class="n">alsa</span> <span class="n">pulseaudio</span> <span class="n">faad</span> <span class="n">fdkaac</span> <span class="n">flac</span> <span class="n">inotify</span> <span class="n">ladspa</span> <span class="n">magic</span> <span class="n">ogg</span> <span class="n">shine</span> <span class="n">soundtouch</span> <span class="n">ssl</span> <span class="n">xmlplaylist</span> <span class="n">yojson</span> <span class="n">liquidsoap</span>
+</code></pre></div>
 
 
 <p>Effectivement ça fait du monde sur la ligne ;
@@ -172,16 +173,22 @@ Lui aussi fait partie des paquets habituels fournis par les distributions.</p>
 <p>Si vous avez une interface graphique (Gnome, KDE, Mint, ...) vous avez déjà
 pulesaudio/ALSA, mais dans le cas contraire il faut les installer.
 Par exemple sous Debian :</p>
-<p><code>sudo apt install alsa-utils pulseaudio</code></p>
+<div class="codehilite"><pre><span></span><code>sudo apt install alsa-utils pulseaudio
+</code></pre></div>
+
+
 <p><code>alsa-utils</code> fournira le précieux <code>alsamixer</code>.
 Attention : après installation, les niveaux/mute/routes sont souvent pourris,
 surtout si vous avez une carte son sophistiquée,
 donc lancez <code>alsamixer</code> dès maintenant pour vérifier.</p>
 <p>ALSA suffit, mais si vous aimez l'aventure il faut aussi activer <code>pulseaudio</code>,
 en tant que l'utilisateur qui va faire la radio (<em>pas</em> en tant que root) :</p>
-<p><code>systemctl --user enable pulseaudio
+<div class="codehilite"><pre><span></span><code>systemctl --user <span class="nb">enable</span> pulseaudio
 systemctl --user start pulseaudio
-systemctl --user status pulseaudio</code></p>
+systemctl --user status pulseaudio
+</code></pre></div>
+
+
 <p>La dernière commande doit afficher <code>Active: active (running)</code> en vert.</p>
 <h2>Ecrire le script de notre programme radio</h2>
 <p>Liquidsoap est un moteur qui exécute un script, écrit dans un langage spécifique.
@@ -221,20 +228,22 @@ radios catégorie A ; c'est à dire quatre indicatifs (un jingle) par heure et l
 <em>"35% de titres francophones, dont 25% au moins du total provenant de nouveaux talents"</em>.</p>
 <h3>Mon premier script ®</h3>
 <p>La source la plus simple est <code>single</code>, qui lit un fichier en boucle :</p>
-<pre class="codehilite"><code>radio = single(&quot;/home/radio/Musique/Michel/Le vrai Michel/01 Michel en illimité.m4a&quot;)</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="n">radio</span> <span class="o">=</span> <span class="n">single</span><span class="o">(</span><span class="s2">&quot;/home/radio/Musique/Michel/Le vrai Michel/01 Michel en illimité.m4a&quot;</span><span class="o">)</span>
+</code></pre></div>
 
 
 <p>C'est un script valide ... mais qui ne fera rien, car rien n'est branché pour
 consommer cette source. Ajoutons donc une sortie vers la carte son
 et une sortie Icecast encodée en <code>ogg</code>. Toutes deux reprennent <code>source</code>:</p>
-<pre class="codehilite"><code>output.alsa(radio)
+<div class="codehilite"><pre><span></span><code><span class="n">output</span><span class="o">.</span><span class="n">alsa</span><span class="o">(</span><span class="n">radio</span><span class="o">)</span>
 
-output.icecast(%vorbis,
-    host = &quot;localhost&quot;,
-    port = 8000,
-    password = &quot;secret&quot;,
-    mount = &quot;radiomichel.ogg&quot;, # donc ce sera sur http://localhost:8000/radiomichel.ogg
-    radio)</code></pre>
+<span class="n">output</span><span class="o">.</span><span class="n">icecast</span><span class="o">(%</span><span class="n">vorbis</span><span class="o">,</span>
+    <span class="n">host</span> <span class="o">=</span> <span class="s2">&quot;localhost&quot;</span><span class="o">,</span>
+    <span class="n">port</span> <span class="o">=</span> <span class="mi">8000</span><span class="o">,</span>
+    <span class="n">password</span> <span class="o">=</span> <span class="s2">&quot;secret&quot;</span><span class="o">,</span>
+    <span class="n">mount</span> <span class="o">=</span> <span class="s2">&quot;radiomichel.ogg&quot;</span><span class="o">,</span> <span class="o">#</span> <span class="n">donc</span> <span class="n">ce</span> <span class="n">sera</span> <span class="n">sur</span> <span class="n">http</span><span class="o">://</span><span class="n">localhost</span><span class="o">:</span><span class="mi">8000</span><span class="o">/</span><span class="n">radiomichel</span><span class="o">.</span><span class="n">ogg</span>
+    <span class="n">radio</span><span class="o">)</span>
+</code></pre></div>
 
 
 <p>Avec ces 3 instructions dans un fichier <code>radio.liq</code>,
@@ -246,17 +255,18 @@ elles n'ont pas du tout la même gestion du temps et des tampons.
 Or, avec ce qu'on vient d'écrire, Liquidsoap va les garder synchronisées de très près,
 ce qui risque de créer des glitches dans la carte son.
 Pour éviter cela on va explicitement séparer les <code>clocks</code> et insérer un <code>buffer</code> :</p>
-<pre class="codehilite"><code>output.alsa(radio)
+<div class="codehilite"><pre><span></span><code><span class="n">output</span><span class="o">.</span><span class="n">alsa</span><span class="o">(</span><span class="n">radio</span><span class="o">)</span>
 
-clock.assign_new(, [
-    output.icecast(%vorbis,
-        host = &quot;localhost&quot;,
-        port = 8000,
-        password = &quot;secret&quot;,
-        mount = &quot;radiomichel.ogg&quot;, # donc ce sera sur http://localhost:8000/radiomichel.ogg
-        mksafe(buffer(radio))
-    )
-])</code></pre>
+<span class="n">clock</span><span class="o">.</span><span class="n">assign_new</span><span class="o">(,</span> <span class="o">[</span>
+    <span class="n">output</span><span class="o">.</span><span class="n">icecast</span><span class="o">(%</span><span class="n">vorbis</span><span class="o">,</span>
+        <span class="n">host</span> <span class="o">=</span> <span class="s2">&quot;localhost&quot;</span><span class="o">,</span>
+        <span class="n">port</span> <span class="o">=</span> <span class="mi">8000</span><span class="o">,</span>
+        <span class="n">password</span> <span class="o">=</span> <span class="s2">&quot;secret&quot;</span><span class="o">,</span>
+        <span class="n">mount</span> <span class="o">=</span> <span class="s2">&quot;radiomichel.ogg&quot;</span><span class="o">,</span> <span class="o">#</span> <span class="n">donc</span> <span class="n">ce</span> <span class="n">sera</span> <span class="n">sur</span> <span class="n">http</span><span class="o">://</span><span class="n">localhost</span><span class="o">:</span><span class="mi">8000</span><span class="o">/</span><span class="n">radiomichel</span><span class="o">.</span><span class="n">ogg</span>
+        <span class="n">mksafe</span><span class="o">(</span><span class="n">buffer</span><span class="o">(</span><span class="n">radio</span><span class="o">))</span>
+    <span class="o">)</span>
+<span class="o">])</span>
+</code></pre></div>
 
 
 <p>Nous n'utiliserons que ces deux sorties pour la suite :
@@ -268,7 +278,8 @@ de <code>clock</code>, <code>Underrun</code> ou <code>buffer</code>, voyez la pa
 prenez l'habitude de tester les modifications au fur et à mesure.
 Pour cela il est plus pratique d'installer Liquidsoap sur un autre ordinateur
 que l'antenne, pour pouvoir lancer :</p>
-<pre class="codehilite"><code>liquidsoap --check monscript.liq</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="err">liquidsoap --check monscript.liq</span>
+</code></pre></div>
 
 
 <p>Qui ne va pas l'éxecuter mais juste tenter de le charger, et se planter avec
@@ -280,7 +291,8 @@ c'est à dire quelque chose qui dit le nom de la radio et sa fréquence
 quatre fois par heure. Bref, des jingles. 
 Si <code>/home/radio/jingles</code> est le répertoire dans lequel j'entasse mes jingles,
 une source de jingles peut s'écrire :</p>
-<pre class="codehilite"><code>jingles = playlist(&quot;/home/radio/jingles&quot;)</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="n">jingles</span> <span class="o">=</span> <span class="n">playlist</span><span class="o">(</span><span class="s2">&quot;/home/radio/jingles&quot;</span><span class="o">)</span>
+</code></pre></div>
 
 
 <p>Remplaçons <code>playlist</code> par <code>playlist.safe</code>,
@@ -295,7 +307,8 @@ jusqu'à la fin des temps. On préfèrerait qu'il relance les dés
 <p>Enfin on peut lui demander de recharger la liste dès que quelque chose bouge
 dans le répertoire, c'est plus pratique pour mettre en rotation (ou retirer) un jingle.</p>
 <p>Ces trois modifications s'écrivent :</p>
-<pre class="codehilite"><code>playlist.safe(&quot;/home/radio/jingles&quot;, mode=&quot;random&quot;, reload_mode=&quot;watch&quot;)</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="n">playlist</span><span class="o">.</span><span class="n">safe</span><span class="o">(</span><span class="s2">&quot;/home/radio/jingles&quot;</span><span class="o">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;random&quot;</span><span class="o">,</span> <span class="n">reload_mode</span><span class="o">=</span><span class="s2">&quot;watch&quot;</span><span class="o">)</span>
+</code></pre></div>
 
 
 <p>Cette source lit des jingles sans arrêt - enfin, dès qu'on la donne à une sortie.
@@ -303,9 +316,10 @@ Or on en a besoin que environ tous les quart d'heures.
 On va donc intercaler l'opérateur <code>delay</code>,
 qui lit une piste de la source puis attend un certain temps avant de s'annoncer
 comme source disponible :</p>
-<pre class="codehilite"><code>jingles = delay(780.,
-    playlist.safe(&quot;/home/radio/jingles&quot;, mode=&quot;random&quot;, reload_mode=&quot;watch&quot;)
-)</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="n">jingles</span> <span class="o">=</span> <span class="n">delay</span><span class="o">(</span><span class="mi">780</span><span class="o">.,</span>
+    <span class="n">playlist</span><span class="o">.</span><span class="n">safe</span><span class="o">(</span><span class="s2">&quot;/home/radio/jingles&quot;</span><span class="o">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;random&quot;</span><span class="o">,</span> <span class="n">reload_mode</span><span class="o">=</span><span class="s2">&quot;watch&quot;</span><span class="o">)</span>
+<span class="o">)</span>
+</code></pre></div>
 
 
 <p>Nous pouvons maintenant mettre nos jingles dans le flux de la radio,
@@ -315,15 +329,16 @@ il va toujours piocher la première source disponible.
 Et justement, à cause du <code>delay</code> les jingles ne seront plus disponibles
 pendant quelques minutes après la lecture d'un jingle.
 Nos sources complètent ressemblent donc à:</p>
-<pre class="codehilite"><code>musique = single(&quot;/home/radio/Musique/Michel/Le vrai Michel/01 Michel en illimité.m4a&quot;)
+<div class="codehilite"><pre><span></span><code><span class="n">musique</span> <span class="o">=</span> <span class="n">single</span><span class="o">(</span><span class="s2">&quot;/home/radio/Musique/Michel/Le vrai Michel/01 Michel en illimité.m4a&quot;</span><span class="o">)</span>
 
-jingles = delay(780.,
-    playlist.safe(&quot;/home/radio/jingles&quot;, mode=&quot;random&quot;, reload_mode=&quot;watch&quot;)
-)
+<span class="n">jingles</span> <span class="o">=</span> <span class="n">delay</span><span class="o">(</span><span class="mi">780</span><span class="o">.,</span>
+    <span class="n">playlist</span><span class="o">.</span><span class="n">safe</span><span class="o">(</span><span class="s2">&quot;/home/radio/jingles&quot;</span><span class="o">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;random&quot;</span><span class="o">,</span> <span class="n">reload_mode</span><span class="o">=</span><span class="s2">&quot;watch&quot;</span><span class="o">)</span>
+<span class="o">)</span>
 
-radio = fallback([jingles, musique])
+<span class="n">radio</span> <span class="o">=</span> <span class="n">fallback</span><span class="o">([</span><span class="n">jingles</span><span class="o">,</span> <span class="n">musique</span><span class="o">])</span>
 
-# ajoutez les sorties</code></pre>
+<span class="o">#</span> <span class="n">ajoutez</span> <span class="n">les</span> <span class="n">sorties</span>
+</code></pre></div>
 
 
 <p>On parlait d'un jingle tous les quarts d'heure,
@@ -337,7 +352,8 @@ crééent aussi une source à chaque utilisation.</p>
 <p>On aime bien <em>Michel en illimité</em> mais il est temps de changer de disque.
 Disons que toute notre musique est dans un dossier <code>/home/radio/Musique</code>.
 On peut construire une source qui va piocher aléatoirement dans ce dossier en écrivant :</p>
-<pre class="codehilite"><code>playlist(&quot;/home/radio/Musique&quot;)</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="n">playlist</span><span class="o">(</span><span class="s2">&quot;/home/radio/Musique&quot;</span><span class="o">)</span>
+</code></pre></div>
 
 
 <p>Comme on le disait plus haut : Liquidsoap ne veut que des sources sûres.
@@ -365,21 +381,23 @@ Pour éviter de le déguster à l'antenne, on peut aussi ajouter un détecteur d
 silences qui zappe la piste en cours, dans ce cas.
 Cet opérateur c'est <code>skip_blank</code>, qui avec les paramètres suivants zappera la piste en cours
 si on reste sous -50dB pendant au moins 10 secondes :</p>
-<pre class="codehilite"><code>skip_blank(source, max_blank=10., threshold=-50.)</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="n">skip_blank</span><span class="o">(</span><span class="n">source</span><span class="o">,</span> <span class="n">max_blank</span><span class="o">=</span><span class="mi">10</span><span class="o">.,</span> <span class="n">threshold</span><span class="o">=-</span><span class="mi">50</span><span class="o">.)</span>
+</code></pre></div>
 
 
 <p>Si vous non plus vous n'aimez pas les blancs d'antenne je recommande de
 carrément mettre <code>skip_blank</code> en dernier opérateur avant les sorties.
 Le début de notre script ressemblera donc à :</p>
-<pre class="codehilite"><code>musique = playlist(reload=3600, &quot;/home/radio/Musique&quot;)
+<div class="codehilite"><pre><span></span><code><span class="n">musique</span> <span class="o">=</span> <span class="n">playlist</span><span class="o">(</span><span class="n">reload</span><span class="o">=</span><span class="mi">3600</span><span class="o">,</span> <span class="s2">&quot;/home/radio/Musique&quot;</span><span class="o">)</span>
 
-jingles = delay(780.,
-    playlist.safe(&quot;/home/radio/jingles&quot;, mode=&quot;random&quot;, reload_mode=&quot;watch&quot;)
-)
+<span class="n">jingles</span> <span class="o">=</span> <span class="n">delay</span><span class="o">(</span><span class="mi">780</span><span class="o">.,</span>
+    <span class="n">playlist</span><span class="o">.</span><span class="n">safe</span><span class="o">(</span><span class="s2">&quot;/home/radio/jingles&quot;</span><span class="o">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;random&quot;</span><span class="o">,</span> <span class="n">reload_mode</span><span class="o">=</span><span class="s2">&quot;watch&quot;</span><span class="o">)</span>
+<span class="o">)</span>
 
-musique_et_jingles = fallback([jingles, musique])
+<span class="n">musique_et_jingles</span> <span class="o">=</span> <span class="n">fallback</span><span class="o">([</span><span class="n">jingles</span><span class="o">,</span> <span class="n">musique</span><span class="o">])</span>
 
-radio = skip_blank(musique_et_jingles, max_blank=10., threshold=-50.)</code></pre>
+<span class="n">radio</span> <span class="o">=</span> <span class="n">skip_blank</span><span class="o">(</span><span class="n">musique_et_jingles</span><span class="o">,</span> <span class="n">max_blank</span><span class="o">=</span><span class="mi">10</span><span class="o">.,</span> <span class="n">threshold</span><span class="o">=-</span><span class="mi">50</span><span class="o">.)</span>
+</code></pre></div>
 
 
 <p>A ce stade vous avez une webradio musicale !</p>
@@ -390,15 +408,17 @@ on peut sélectionner les fichiers présents dans le dossier musical pour assurr
 on peut aussi s'aider de Liquidsoap.</p>
 <p>Si l'on répartit les chansons françaises, les sorties récentes et le reste dans trois répertoires différents,
 on peut en faire une source pour chacun :</p>
-<pre class="codehilite"><code>musique = playlist(reload=3600, &quot;/home/radio/Musique/TOUT&quot;)
-musique_FR = playlist(reload=3600, &quot;/home/radio/Musique/FR&quot;)
-musique_recente = playlist(reload=3600, &quot;/home/radio/Musique/AIRPLAY/&quot;)</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="n">musique</span> <span class="o">=</span> <span class="n">playlist</span><span class="o">(</span><span class="n">reload</span><span class="o">=</span><span class="mi">3600</span><span class="o">,</span> <span class="s2">&quot;/home/radio/Musique/TOUT&quot;</span><span class="o">)</span>
+<span class="n">musique_FR</span> <span class="o">=</span> <span class="n">playlist</span><span class="o">(</span><span class="n">reload</span><span class="o">=</span><span class="mi">3600</span><span class="o">,</span> <span class="s2">&quot;/home/radio/Musique/FR&quot;</span><span class="o">)</span>
+<span class="n">musique_recente</span> <span class="o">=</span> <span class="n">playlist</span><span class="o">(</span><span class="n">reload</span><span class="o">=</span><span class="mi">3600</span><span class="o">,</span> <span class="s2">&quot;/home/radio/Musique/AIRPLAY/&quot;</span><span class="o">)</span>
+</code></pre></div>
 
 
 <p>Puis utiliser l'opérateur <code>random</code> pour créer une nouvelle source qui combine aléatoirement les trois.
 Par défaut <code>random</code> pioche a égalité dans les différentes sources qu'on lui donne,
 mais on peut lui passer une liste de valeurs, <code>weights</code>, pour piper les dés :</p>
-<pre class="codehilite"><code>playlist_quota = random([musique, musique_FR, musique_recente], weights=[40,35,25])</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="n">playlist_quota</span> <span class="o">=</span> <span class="n">random</span><span class="o">([</span><span class="n">musique</span><span class="o">,</span> <span class="n">musique_FR</span><span class="o">,</span> <span class="n">musique_recente</span><span class="o">],</span> <span class="n">weights</span><span class="o">=[</span><span class="mi">40</span><span class="o">,</span><span class="mi">35</span><span class="o">,</span><span class="mi">25</span><span class="o">])</span>
+</code></pre></div>
 
 
 <p>Attention, il doit y avoir autant d'entrées dans la liste <code>weights</code> que dans la liste de sources,
@@ -412,11 +432,12 @@ Si le reste du temps on veut piocher uniquement dans <code>musique</code>
 (on pourrait aussi ajouter une playlist <code>Nuit</code>),
 on peut utiliser l'opérateur <code>switch</code> pour choisir une source en fonction de l'horaire.
 Avec les sources créées dans auparavant :</p>
-<pre class="codehilite"><code>semaine_musicale = switch([
-  ({ (1w or 2w or 3w or 4w or 5w) and 6h30-22h30 }, playlist_quota),
-  ({ (6w or 7w) and 8h-22h30 }, playlist_quota),
-  ({ true }, mksafe(musique))
-])</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="n">semaine_musicale</span> <span class="o">=</span> <span class="n">switch</span><span class="o">([</span>
+  <span class="o">({</span> <span class="o">(</span><span class="mi">1</span><span class="n">w</span> <span class="ow">or</span> <span class="mi">2</span><span class="n">w</span> <span class="ow">or</span> <span class="mi">3</span><span class="n">w</span> <span class="ow">or</span> <span class="mi">4</span><span class="n">w</span> <span class="ow">or</span> <span class="mi">5</span><span class="n">w</span><span class="o">)</span> <span class="ow">and</span> <span class="mi">6</span><span class="n">h30</span><span class="o">-</span><span class="mi">22</span><span class="n">h30</span> <span class="o">},</span> <span class="n">playlist_quota</span><span class="o">),</span>
+  <span class="o">({</span> <span class="o">(</span><span class="mi">6</span><span class="n">w</span> <span class="ow">or</span> <span class="mi">7</span><span class="n">w</span><span class="o">)</span> <span class="ow">and</span> <span class="mi">8</span><span class="n">h</span><span class="o">-</span><span class="mi">22</span><span class="n">h30</span> <span class="o">},</span> <span class="n">playlist_quota</span><span class="o">),</span>
+  <span class="o">({</span> <span class="bp">true</span> <span class="o">},</span> <span class="n">mksafe</span><span class="o">(</span><span class="n">musique</span><span class="o">))</span>
+<span class="o">])</span>
+</code></pre></div>
 
 
 <p><code>switch</code> est paramètrée par une liste de couples <code>(condition, source)</code> et dans Liquidsoap les conditions d'horaires peuvent s'écrire avec la notation que vous voyez ci-dessus entre accolades.
@@ -430,14 +451,16 @@ Il faut d'abord une source correspondant à l'émission.</p>
 on utilise alors une source <code>single</code> qui pointe un fichier,
 que vous pouvez remplacer par un nouvel épisode au fur et à mesure.
 Ce qui donne :</p>
-<pre class="codehilite"><code>single(&quot;/home/radio/emissions/superemission/EpisodeCourant.flac&quot;)</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="n">single</span><span class="o">(</span><span class="s2">&quot;/home/radio/emissions/superemission/EpisodeCourant.flac&quot;</span><span class="o">)</span>
+</code></pre></div>
 
 
 <p>Attention les meta-données (dont le titre) ne sont pas re-chargées si le fichier change
 pendant que Liquidsoap tourne.</p>
 <p>Si vous pre-chargez plusieurs épisodes, vous pouvez utiliser <code>playlist</code> et
 pointer vers une répertoire, par exemple en faisant</p>
-<pre class="codehilite"><code>mksafe(playlist(&quot;/home/radio/emissions/superemission&quot;, mode=&quot;normal&quot;, reload_mode=&quot;watch&quot;))</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="n">mksafe</span><span class="o">(</span><span class="n">playlist</span><span class="o">(</span><span class="s2">&quot;/home/radio/emissions/superemission&quot;</span><span class="o">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;normal&quot;</span><span class="o">,</span> <span class="n">reload_mode</span><span class="o">=</span><span class="s2">&quot;watch&quot;</span><span class="o">))</span>
+</code></pre></div>
 
 
 <p>Grâce à <code>mode="normal"</code> la liste sera prise dans l'ordre des noms de fichiers,
@@ -451,12 +474,13 @@ il repartira du premier.</p>
 Disons que la source de votre émission s'appelle <code>superemission</code>,
 on a plus qu'a l'intégrer au <code>switch</code> musical
 avec une condition pour la passer le Samedi à 12h ?</p>
-<pre class="codehilite"><code>superemission = single(&quot;/home/radio/emissions/superemission/EpisodeCourant.flac&quot;)
+<div class="codehilite"><pre><span></span><code><span class="n">superemission</span> <span class="o">=</span> <span class="n">single</span><span class="o">(</span><span class="s2">&quot;/home/radio/emissions/superemission/EpisodeCourant.flac&quot;</span><span class="o">)</span>
 
-semaine_musicale = switch([
-  ( {6w and 12h}, superemission),
-  ...
-])</code></pre>
+<span class="n">semaine_musicale</span> <span class="o">=</span> <span class="n">switch</span><span class="o">([</span>
+  <span class="o">(</span> <span class="o">{</span><span class="mi">6</span><span class="n">w</span> <span class="ow">and</span> <span class="mi">12</span><span class="n">h</span><span class="o">},</span> <span class="n">superemission</span><span class="o">),</span>
+  <span class="o">...</span>
+<span class="o">])</span>
+</code></pre></div>
 
 
 <p>Eh non ! Les conditions d'horaires d'un <code>switch</code> ne sont re-evaluées
@@ -468,9 +492,10 @@ qu'à la fin de chaque piste. Ce qui veut dire que :</p>
 </ul>
 <p>Pour pallier à cela, on va plutôt créer ajouter un <code>fallback</code> et un <code>switch</code>
 dédiés aux programmes qui doivent partir à l'heure :</p>
-<pre class="codehilite"><code>emissions = switch([
-  ({ 6w12h00m }, superemission),
-])</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="n">emissions</span> <span class="o">=</span> <span class="n">switch</span><span class="o">([</span>
+  <span class="o">({</span> <span class="mi">6</span><span class="n">w12h00m</span> <span class="o">},</span> <span class="n">superemission</span><span class="o">),</span>
+<span class="o">])</span>
+</code></pre></div>
 
 
 <p>Contrairement au <code>switch</code> de la section précédente,
@@ -484,24 +509,27 @@ disponibilité des émissions.
 A la différence de celui des jingles, dans ce cas on désactive <code>track_sensitive</code>,
 c'est à dire que dès qu'une source plus prioritaire devient active, on l'enclenche
 (par défaut, <code>fallback</code> attend la fin de piste en cours pour re-évaluer les disponibilités).</p>
-<pre class="codehilite"><code>base = fallback([emissions, fond_musical], track_sensitive=false)</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="n">base</span> <span class="o">=</span> <span class="n">fallback</span><span class="o">([</span><span class="n">emissions</span><span class="o">,</span> <span class="n">fond_musical</span><span class="o">],</span> <span class="n">track_sensitive</span><span class="o">=</span><span class="bp">false</span><span class="o">)</span>
+</code></pre></div>
 
 
 <p>Comme c'est un changement de programme potentiellement brutal,
 on va ajouter un opérateur de crossfade :</p>
-<pre class="codehilite"><code>def crossfade_3s(a,b)
-  add(normalize=false,
-      [ fade.in(duration=3.,b),
-        fade.out(duration=3.,a) ])
-end</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="n">def</span> <span class="n">crossfade_3s</span><span class="o">(</span><span class="n">a</span><span class="o">,</span><span class="n">b</span><span class="o">)</span>
+  <span class="n">add</span><span class="o">(</span><span class="n">normalize</span><span class="o">=</span><span class="bp">false</span><span class="o">,</span>
+      <span class="o">[</span> <span class="n">fade</span><span class="o">.</span><span class="k">in</span><span class="o">(</span><span class="n">duration</span><span class="o">=</span><span class="mi">3</span><span class="o">.,</span><span class="n">b</span><span class="o">),</span>
+        <span class="n">fade</span><span class="o">.</span><span class="n">out</span><span class="o">(</span><span class="n">duration</span><span class="o">=</span><span class="mi">3</span><span class="o">.,</span><span class="n">a</span><span class="o">)</span> <span class="o">])</span>
+<span class="k">end</span>
+</code></pre></div>
 
 
 <p>Cela s'intègre en ajoutant à <code>fallback</code> un paramètre <code>transitions</code>,
 qui liste la fonction de transition à utiliser à la fin de chaque source ;
 donc la liste <code>transitions</code> doit faire la même longueur que la liste de sources.
 Ce qui donne :</p>
-<pre class="codehilite"><code>base = fallback([emissions, fond_musical], track_sensitive=false,
-  transitions=[crossfade_3s, crossfade_3s])</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="n">base</span> <span class="o">=</span> <span class="n">fallback</span><span class="o">([</span><span class="n">emissions</span><span class="o">,</span> <span class="n">fond_musical</span><span class="o">],</span> <span class="n">track_sensitive</span><span class="o">=</span><span class="bp">false</span><span class="o">,</span>
+  <span class="n">transitions</span><span class="o">=[</span><span class="n">crossfade_3s</span><span class="o">,</span> <span class="n">crossfade_3s</span><span class="o">])</span>
+</code></pre></div>
 
 
 <p>Une autre conséquence de <code>track_sensitive=false</code> est que <code>fond_musical</code>
@@ -540,10 +568,11 @@ et de le conserver/synchroniser a coté du script !</p>
 <p><code>liquidsoap-daemon</code> est un utilitaire qui créé un service système à partir d'un
 script, ce qui permet notamment de l'éxecuter automatiquement au démarrage.
 On commence par l'intaller :</p>
-<pre class="codehilite"><code>cd
-git clone https://github.com/savonet/liquidsoap-daemon.git
-cd liquidsoap-daemon
-mkdir script</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="err">cd</span>
+<span class="err">git clone https://github.com/savonet/liquidsoap-daemon.git</span>
+<span class="err">cd liquidsoap-daemon</span>
+<span class="err">mkdir script</span>
+</code></pre></div>
 
 
 <p>à partir de là, placez le ou les scripts concernés dans le répertoire
@@ -551,8 +580,9 @@ mkdir script</code></pre>
 Par exemple si le script s'appelle <code>radio.liq</code>, exécutez 
 (en tant qu'utilisateur qui peut faire <code>sudo</code>)
 depuis le répertoire <code>liquidsoap-daemon</code> :</p>
-<pre class="codehilite"><code>./daemonize-liquidsoap.sh radio
-sudo systemctl start pige-liquidsoap</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="err">./daemonize-liquidsoap.sh radio</span>
+<span class="err">sudo systemctl start pige-liquidsoap</span>
+</code></pre></div>
 
 
 <p>Et c'est parti ! Il démarrera tout seul au prochain boot.
@@ -567,11 +597,12 @@ le temps que ça reparte.</p>
 <p>On peut brancher le signal qui part à l'antenne sur l'entrée audio de notre machine,
 et y lancer un script qui ne sert qu'à la pige.
 Ce script ne contiendra que les deux blocs ci-dessous :</p>
-<pre class="codehilite"><code>output.file(%flac,
-    &quot;/mnt/pige/%Y-%m-%d/%Hh%M_%S.flac&quot;,
-    in(),
-    reopen_when = {0m} 
-)</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="n">output</span><span class="o">.</span><span class="n">file</span><span class="o">(%</span><span class="n">flac</span><span class="o">,</span>
+    <span class="s2">&quot;/mnt/pige/%Y-%m-%d/%Hh%M_%S.flac&quot;</span><span class="o">,</span>
+    <span class="k">in</span><span class="bp">()</span><span class="o">,</span>
+    <span class="n">reopen_when</span> <span class="o">=</span> <span class="o">{</span><span class="mi">0</span><span class="n">m</span><span class="o">}</span> 
+<span class="o">)</span>
+</code></pre></div>
 
 
 <p>Suivant cette première instruction,
@@ -580,14 +611,15 @@ dans un répertoire par jour, dans <code>/mnt/pige</code>
 ... en espérant que <code>in()</code> pioche la bonne entrée !</p>
 <p>On ajoute ensuite un ménage automatique des fichiers et répertoires
 agés de plus d'un mois :</p>
-<pre class="codehilite"><code>exec_at(freq=3600., pred={ true },
-    fun () -&gt; list.iter(fun(msg) -&gt; log(msg, label=&quot;nettoyeur_de_pige&quot;),
-        list.append(
-            get_process_lines(&quot;find /mnt/pige/* -type f -mtime +31 -delete&quot;),
-            get_process_lines(&quot;find /mnt/pige/* -type d -empty -delete&quot;)
-        )
-    )
-)</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="n">exec_at</span><span class="o">(</span><span class="n">freq</span><span class="o">=</span><span class="mi">3600</span><span class="o">.,</span> <span class="n">pred</span><span class="o">={</span> <span class="bp">true</span> <span class="o">},</span>
+    <span class="k">fun</span> <span class="bp">()</span> <span class="o">-&gt;</span> <span class="kt">list</span><span class="o">.</span><span class="n">iter</span><span class="o">(</span><span class="k">fun</span><span class="o">(</span><span class="n">msg</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="n">log</span><span class="o">(</span><span class="n">msg</span><span class="o">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;nettoyeur_de_pige&quot;</span><span class="o">),</span>
+        <span class="kt">list</span><span class="o">.</span><span class="n">append</span><span class="o">(</span>
+            <span class="n">get_process_lines</span><span class="o">(</span><span class="s2">&quot;find /mnt/pige/* -type f -mtime +31 -delete&quot;</span><span class="o">),</span>
+            <span class="n">get_process_lines</span><span class="o">(</span><span class="s2">&quot;find /mnt/pige/* -type d -empty -delete&quot;</span><span class="o">)</span>
+        <span class="o">)</span>
+    <span class="o">)</span>
+<span class="o">)</span>
+</code></pre></div>
 
 
 <p>Mettez plus que 31 si vous êtes richement dotés en disques durs,
