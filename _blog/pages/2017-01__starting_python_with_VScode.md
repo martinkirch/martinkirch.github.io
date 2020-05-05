@@ -2,7 +2,7 @@ title: Tweaking Visual Studio Code for Python and Pyramid
 briefing: Installing and configuring VS Code for Python programming is not enough documented. Here are my findings.
 date_time: 2017-01-15 16:00
 slug: configuring-vs-code-for-python-pyramid
-tags: python, ide, pyramid
+tags: python, ide, pyramid, in_english
 type: post
 
 

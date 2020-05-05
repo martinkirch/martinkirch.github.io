@@ -2,7 +2,7 @@ title: Fetch the "first in a group by"
 briefing: Or, using window functions with SQLAlchemy
 date_time: 2019-11-05 20:00
 slug: window-functions-with-sqlalchemy
-tags: data, postgres
+tags: data, postgres, in_english
 type: post
 
 

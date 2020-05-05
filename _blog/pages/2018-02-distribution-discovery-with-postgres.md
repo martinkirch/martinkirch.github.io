@@ -2,7 +2,7 @@ title: Quickly guess your data's distribution with PostGreSQL
 briefing: Given a million scores, how to quickly have an idea of their distribution?
 date_time: 2018-02-05 20:00
 slug: distribution-discovery-with-postgres
-tags: data, postgres, statistics
+tags: data, postgres, statistics, in_english
 type: post
 
 In this post we get back to basics!

@@ -2,7 +2,7 @@ title: A 33C3 watch-list
 briefing: A few videos you should watch from the latest edition of the TED of computer security.
 date_time: 2017-02-05 16:00
 slug: 33c3-videos-recommendations
-tags: security, video
+tags: security, video, in_english
 type: post
 
 
