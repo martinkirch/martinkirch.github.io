@@ -4,9 +4,9 @@
     "pages_dir": "_blog/pages",
     "site": {
         "url": "martinkirch.github.io",
-        "title": "Martin's notes",
+        "title": "C'est toi le titre",
         "author": "Martin Kirchgessner",
-        "briefing": "Martin's (random) notes.",
+        "briefing": "Parce qu'il me fallait un endoit où publier quelques notes.",
         "links": {
           "All posts": "/",
           "Tags": "/tags.html"
