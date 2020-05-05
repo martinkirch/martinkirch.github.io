@@ -1,5 +1,5 @@
 title: Un automate radio (et une pige d'antenne) pour radio associative avec Liquidsoap
-briefing: TODO
+briefing: Où l'on installe Liquidsoap, apprend les bases pour écrire des scripts et en faire un automate simple et efficace.
 date_time: 2020-05-05 12:00
 slug: liquidsoap-pige-et-automate-pour-radio-associative
 tags: liquidsoap, en_français
