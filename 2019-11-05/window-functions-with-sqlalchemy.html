@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title> Fetch the "first in a group by" - Martin's notes </title>
+    <meta name="description" content="Or, using window functions with SQLAlchemy"/>
+    <meta name="keywords" content=" data, postgres, in_english" />
+
+    <!-- Bootstrap -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+
+    <link href="/pygments.css" rel="stylesheet">
+
+    <style>
+      pre{
+        background: #eee;
+        padding:1em;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="/">Martin's notes</a>
+        </div>
+        <ul class="nav navbar-nav navbar-right">
+            
+                
+                    <li><a href="/">All posts</a></li>
+                
+                    <li><a href="/tags.html">Tags</a></li>
+                
+            
+          </ul>
+      </div>
+    </nav>
+
+    <div class="container">
+      
+<div itemscope itemtype="http://schema.org/NewsArticle">
+  <meta itemscope itemprop="mainEntityOfPage"  itemType="https://schema.org/WebPage" itemid="http://martinkirch.github.io/2019-11-05/window-functions-with-sqlalchemy.html"/>
+  <div class="page-header">
+    <h1 itemprop="name">Fetch the "first in a group by"</h1>
+    
+  </div>
+
+  <small>Tags : 
+    
+      <a href="/tag/data.html">
+          <span class="label label-default" itemprop="about">data</span>
+      </a>
+    
+      <a href="/tag/postgres.html">
+          <span class="label label-default" itemprop="about">postgres</span>
+      </a>
+    
+      <a href="/tag/in_english.html">
+          <span class="label label-default" itemprop="about">in_english</span>
+      </a>
+    
+    
+        <p class="text-right">
+            Posted on <span itemprop="datePublished">2019-11-05</span>
+            <span itemprop="author" itemscope itemtype="https://schema.org/Person">
+              by <span itemprop="name">Martin Kirchgessner</span>
+            </span>
+        </p>
+    
+    </small>
+
+    <div class="col-md-8 col-md-offset-2">
+      <h1>The problem</h1>
+<p>Let's say I have <code>Document</code>s in PostgreSQL, that among other great content
+include a <code>folder_id</code> and a <code>date</code>.</p>
+<p><strong>How do I fetch (only) the most recent document from each folder ?</strong></p>
+<p>In SQL, this is possible by turning folders into windows (also called partitions).
+The big difference with <code>GROUP BY</code> is that the engine keeps (and returns, by default) all concerned rows.
+It just changes their order, to distinguish groups and maybe order within each group.</p>
+<p>Some functions are designed to work on these windows: it's a powerful tool
+better explained and illustrated by the 
+<a href="http://www.postgresqltutorial.com/postgresql-window-function/">Postgres Tutoriql</a>.
+In the following I'll assume you know what they do.</p>
+<h1>Explaining this to SQLAlchemy</h1>
+<p>To filter rows in a group, <code>GROUP BY</code> can be used with a <code>HAVING</code> clause.
+But there's not equivalent for window functions.
+With window functions, we can only filter results from a sub-query.
+So this sub-query will compute partitions, and return
+each document's rank in the partition ;
+then top query will only have to keep rows ranking first.</p>
+<p>This is where it gets complicated with SQLAlchemy: in the top query we
+just want to fetch <code>Document</code>s, but we need a way to describe that
+the complete <code>Document</code> comes from the sub-query.
+My first and intuitive attempt created a self-join on my documents table.
+Instead, we have to use SQLAlchemy aliases.</p>
+<p>We firstly have to detail the window function and its grouping/ordering ;
+this function is added to the sub-query's selected columns,
+and made available by two SQLQlchemy tricks:</p>
+<p>```python
+rownb = sa.func.row_number().over(order_by=Document.date.desc(), partition_by=Document.folder_id)
+rownb = rownb.label('rownb')</p>
+<p>subq = session.query(Document, rownb) # add interesting filters here</p>
+<h1>we need these two lines to match Document columns in subq, and to filter by rownb</h1>
+<p>subq = subq.subquery(name="subq", with_labels=True)
+q = session.query(sa.orm.aliased(Document, alias=subq)).filter(subq.c.rownb == 1)
+```</p>
+<p>Hope this helps !</p>
+    </div>
+
+</div>
+
+    </div>
+    <hr />
+    <footer>
+      <div class="container">
+        <div class="row text-center">
+          
+        </div>
+        <p class="text-center"><small>martinkirch.github.io &copy; 2018</small></p>
+      </div>
+    </footer>
+  </body>
+</html>

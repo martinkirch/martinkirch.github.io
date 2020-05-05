@@ -3,27 +3,26 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title> Tweaking Visual Studio Code for Python and Pyramid - Martin's notes </title>
     <meta name="description" content="Installing and configuring VS Code for Python programming is not enough documented. Here are my findings."/>
-    <meta name="keywords" content=" python, ide, pyramid" />
+    <meta name="keywords" content=" python, ide, pyramid, in_english" />
 
     <!-- Bootstrap -->
-    <link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.5/paper/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 
     <link href="/pygments.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
+    <style>
+      pre{
+        background: #eee;
+        padding:1em;
+      }
+    </style>
   </head>
   <body>
-    <nav class="navbar navbar-default">
-      <div class="container-fluid">
+    <nav class="navbar">
         <div class="navbar-header">
           <a class="navbar-brand" href="/">Martin's notes</a>
         </div>
@@ -40,18 +39,44 @@
     </nav>
 
     <div class="container">
-      <div class="row">
-
-        <div class="col-md-8 col-md-offset-2">
-            
-    <div itemscope itemtype="http://schema.org/NewsArticle">
-    <meta itemscope itemprop="mainEntityOfPage"  itemType="https://schema.org/WebPage" itemid="http://martinkirch.github.io/2017-01-15/configuring-vs-code-for-python-pyramid.html"/>
-    <div class="page-header">
-      <h1 itemprop="name">Tweaking Visual Studio Code for Python and Pyramid</h1>
       
-    </div>
-      <section itemprop="articleBody">
-        <p>As I recently became a full-time Python developer (often using the 
+<div itemscope itemtype="http://schema.org/NewsArticle">
+  <meta itemscope itemprop="mainEntityOfPage"  itemType="https://schema.org/WebPage" itemid="http://martinkirch.github.io/2017-01-15/configuring-vs-code-for-python-pyramid.html"/>
+  <div class="page-header">
+    <h1 itemprop="name">Tweaking Visual Studio Code for Python and Pyramid</h1>
+    
+  </div>
+
+  <small>Tags : 
+    
+      <a href="/tag/python.html">
+          <span class="label label-default" itemprop="about">python</span>
+      </a>
+    
+      <a href="/tag/ide.html">
+          <span class="label label-default" itemprop="about">ide</span>
+      </a>
+    
+      <a href="/tag/pyramid.html">
+          <span class="label label-default" itemprop="about">pyramid</span>
+      </a>
+    
+      <a href="/tag/in_english.html">
+          <span class="label label-default" itemprop="about">in_english</span>
+      </a>
+    
+    
+        <p class="text-right">
+            Posted on <span itemprop="datePublished">2017-01-15</span>
+            <span itemprop="author" itemscope itemtype="https://schema.org/Person">
+              by <span itemprop="name">Martin Kirchgessner</span>
+            </span>
+        </p>
+    
+    </small>
+
+    <div class="col-md-8 col-md-offset-2">
+      <p>As I recently became a full-time Python developer (often using the 
 <a href="https://trypyramid.com/">Pyramid framework</a>) I tried to find a cool IDE, and 
 gave a chance to <a href="https://code.visualstudio.com/">Visual Studio Code</a>. 
 At first I liked the editor but the Python extension suffered many glitches, 
@@ -75,8 +100,7 @@ exceptions, give refactoring hints, and more. It's very useful, but the default
 configuration is very, very strict so I suggest you configure it otherwise.
 You can use <a href="/2017-01-15/pylintrc">my own .pylintrc file</a> or 
 create your own by invoking:</p>
-<div class="codehilite"><pre><span></span>pylint --generate-rcfile &gt;&gt; ~/.pylintrc
-</pre></div>
+<pre class="codehilite"><code class="language-bash">pylint --generate-rcfile &gt;&gt; ~/.pylintrc</code></pre>
 
 
 <p>When editing this file you may need the detailed documentation
@@ -94,11 +118,10 @@ environment... but it's not completely reliable, especially on MacOS.
 Sometimes VS Code will use system's Python, or another environment.
 Workspace parameters can circumvent this. 
 For example, I'm setting at least the following two in each of my workspaces:</p>
-<div class="codehilite"><pre><span></span><span class="p">{</span>
-    <span class="nt">&quot;python.linting.pylintPath&quot;</span><span class="p">:</span> <span class="s2">&quot;/Users/martin/.virtualenvs/my_env/bin/pylint&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;python.pythonPath&quot;</span><span class="p">:</span> <span class="s2">&quot;/Users/martin/.virtualenvs/my_env/bin/python&quot;</span>
-<span class="p">}</span>
-</pre></div>
+<pre class="codehilite"><code class="language-json">{
+    &quot;python.linting.pylintPath&quot;: &quot;/Users/martin/.virtualenvs/my_env/bin/pylint&quot;,
+    &quot;python.pythonPath&quot;: &quot;/Users/martin/.virtualenvs/my_env/bin/python&quot;
+}</code></pre>
 
 
 <h2>Debugging Pyramid applications</h2>
@@ -112,41 +135,38 @@ Pyramid applications are a bit more complicated, because <code>pserve</code> lau
 sub-processes that may run below the debugger's radar, missing your breakpoints. 
 With the following configuration, you can even put breakpoints on local 
 libraries:</p>
-<div class="codehilite"><pre><span></span><span class="p">{</span>
-    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Pserve&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;request&quot;</span><span class="p">:</span> <span class="s2">&quot;launch&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;stopOnEntry&quot;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
-    <span class="nt">&quot;pythonPath&quot;</span><span class="p">:</span> <span class="s2">&quot;/Users/martin/.virtualenvs/my_env/bin/python&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;program&quot;</span><span class="p">:</span> <span class="s2">&quot;/Users/martin/.virtualenvs/my_env/bin/pserve&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;cwd&quot;</span><span class="p">:</span> <span class="s2">&quot;${workspaceRoot}&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;args&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="s2">&quot;-v&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;development.ini&quot;</span>
-    <span class="p">],</span>
-    <span class="nt">&quot;console&quot;</span><span class="p">:</span> <span class="s2">&quot;integratedTerminal&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;debugOptions&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="s2">&quot;RedirectOutput&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;WaitOnAbnormalExit&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;WaitOnNormalExit&quot;</span>
-    <span class="p">]</span>
-<span class="p">}</span><span class="err">,</span>
-</pre></div>
+<pre class="codehilite"><code class="language-json">{
+    &quot;name&quot;: &quot;Pserve&quot;,
+    &quot;type&quot;: &quot;python&quot;,
+    &quot;request&quot;: &quot;launch&quot;,
+    &quot;stopOnEntry&quot;: false,
+    &quot;pythonPath&quot;: &quot;/Users/martin/.virtualenvs/my_env/bin/python&quot;,
+    &quot;program&quot;: &quot;/Users/martin/.virtualenvs/my_env/bin/pserve&quot;,
+    &quot;cwd&quot;: &quot;${workspaceRoot}&quot;,
+    &quot;args&quot;: [
+        &quot;-v&quot;,
+        &quot;development.ini&quot;
+    ],
+    &quot;console&quot;: &quot;integratedTerminal&quot;,
+    &quot;debugOptions&quot;: [
+        &quot;RedirectOutput&quot;,
+        &quot;WaitOnAbnormalExit&quot;,
+        &quot;WaitOnNormalExit&quot;
+    ]
+},</code></pre>
 
 
 <p>Do <strong>not</strong> add <code>--reload</code> to the <code>args</code> array. </p>
 <h2>Unit tests integration... or not</h2>
 <p>VS Code has the ability to detect, run and show reports on your project's 
 unit test. I did not find it perticularly useful, so disabled it with:</p>
-<div class="codehilite"><pre><span></span><span class="s2">&quot;python.unitTest.promptToConfigure&quot;</span><span class="err">:</span><span class="kc">false</span>
-</pre></div>
+<pre class="codehilite"><code class="language-json">&quot;python.unitTest.promptToConfigure&quot;:false</code></pre>
 
 
 <p>Instead I'm writing each test case as a standalone runnable script, 
 using the following snippet:</p>
-<div class="codehilite"><pre><span></span><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
-    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">(</span><span class="n">failfast</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-</pre></div>
+<pre class="codehilite"><code class="language-python">if __name__ == '__main__':
+    unittest.main(failfast=True)</code></pre>
 
 
 <p>Thus I can also debug a single test case by hitting F5 while editing it.</p>
@@ -154,114 +174,77 @@ using the following snippet:</p>
 <p>To finish I also copy and explain the rest of my configuration, pick what you 
 prefer. Hovering the property name in the settings edition panel will provide 
 you explanations about what each setting does.</p>
-<div class="codehilite"><pre><span></span><span class="s2">&quot;workbench.editor.enablePreview&quot;</span><span class="err">:</span> <span class="kc">false</span><span class="err">,</span>
-<span class="s2">&quot;workbench.statusBar.visible&quot;</span><span class="err">:</span> <span class="kc">true</span><span class="err">,</span>
-<span class="s2">&quot;explorer.openEditors.dynamicHeight&quot;</span><span class="err">:</span> <span class="kc">false</span><span class="err">,</span>
-<span class="s2">&quot;explorer.openEditors.visible&quot;</span><span class="err">:</span> <span class="mi">4</span><span class="err">,</span>
-<span class="s2">&quot;editor.rulers&quot;</span><span class="err">:</span> <span class="p">[</span><span class="mi">80</span><span class="p">]</span><span class="err">,</span>
-<span class="s2">&quot;window.reopenFolders&quot;</span><span class="err">:</span> <span class="s2">&quot;all&quot;</span><span class="err">,</span>
-<span class="s2">&quot;files.insertFinalNewline&quot;</span><span class="err">:</span> <span class="kc">true</span><span class="err">,</span>
-<span class="s2">&quot;editor.renderLineHighlight&quot;</span><span class="err">:</span> <span class="s2">&quot;all&quot;</span><span class="err">,</span>
-</pre></div>
+<pre class="codehilite"><code class="language-json">&quot;workbench.editor.enablePreview&quot;: false,
+&quot;workbench.statusBar.visible&quot;: true,
+&quot;explorer.openEditors.dynamicHeight&quot;: false,
+&quot;explorer.openEditors.visible&quot;: 4,
+&quot;editor.rulers&quot;: [80],
+&quot;window.reopenFolders&quot;: &quot;all&quot;,
+&quot;files.insertFinalNewline&quot;: true,
+&quot;editor.renderLineHighlight&quot;: &quot;all&quot;,</code></pre>
 
 
 <p>Do not show all files in the explorer panel:</p>
-<div class="codehilite"><pre><span></span><span class="s2">&quot;files.exclude&quot;</span><span class="err">:</span> <span class="p">{</span>
-    <span class="nt">&quot;**/.git&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
-    <span class="nt">&quot;**/.svn&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
-    <span class="nt">&quot;**/.hg&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
-    <span class="nt">&quot;**/.DS_Store&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
-    <span class="nt">&quot;.idea&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
-    <span class="nt">&quot;**/*.pyc&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
-<span class="p">}</span><span class="err">,</span>
-</pre></div>
+<pre class="codehilite"><code class="language-json">&quot;files.exclude&quot;: {
+    &quot;**/.git&quot;: true,
+    &quot;**/.svn&quot;: true,
+    &quot;**/.hg&quot;: true,
+    &quot;**/.DS_Store&quot;: true,
+    &quot;.idea&quot;: true,
+    &quot;**/*.pyc&quot;: true,
+},</code></pre>
 
 
 <p>You wil likely also add <code>.vscode/</code> to your <code>.gitignore</code> files.</p>
 <p>For now Mako templates are not recognized, so let's highlight HTML at least:</p>
-<div class="codehilite"><pre><span></span><span class="s2">&quot;files.associations&quot;</span><span class="err">:</span> <span class="p">{</span>
-    <span class="nt">&quot;*.mako&quot;</span> <span class="p">:</span> <span class="s2">&quot;html&quot;</span>
-<span class="p">}</span><span class="err">,</span>
-</pre></div>
+<pre class="codehilite"><code class="language-json">&quot;files.associations&quot;: {
+    &quot;*.mako&quot; : &quot;html&quot;
+},</code></pre>
 
 
 <h2>Keyboard shortcuts</h2>
 <p>As a suggestion, here are my key bindings (on a Mac keyboard). 
 VS Code will show you some hints in the configuration file as you edit it, 
 so non-US or Mac keyboards are easy to configure. </p>
-<div class="codehilite"><pre><span></span><span class="p">[</span>
-<span class="p">{</span> <span class="nt">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;cmd+.&quot;</span><span class="p">,</span> <span class="nt">&quot;command&quot;</span><span class="p">:</span> <span class="s2">&quot;editor.action.commentLine&quot;</span><span class="p">,</span>
-                    <span class="nt">&quot;when&quot;</span><span class="p">:</span> <span class="s2">&quot;editorTextFocus &amp;&amp; !editorReadonly&quot;</span> <span class="p">},</span>
-<span class="p">{</span> <span class="nt">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;cmd+l&quot;</span><span class="p">,</span> <span class="nt">&quot;command&quot;</span><span class="p">:</span> <span class="s2">&quot;workbench.action.gotoLine&quot;</span> <span class="p">},</span>
-<span class="p">{</span> <span class="nt">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;cmd+g&quot;</span><span class="p">,</span> <span class="nt">&quot;command&quot;</span><span class="p">:</span> <span class="s2">&quot;editor.action.addSelectionToNextFindMatch&quot;</span><span class="p">,</span>
-                    <span class="nt">&quot;when&quot;</span><span class="p">:</span> <span class="s2">&quot;editorFocus&quot;</span> <span class="p">},</span>
-<span class="p">{</span> <span class="nt">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;cmd+d&quot;</span><span class="p">,</span>  <span class="nt">&quot;command&quot;</span><span class="p">:</span> <span class="s2">&quot;editor.action.deleteLines&quot;</span><span class="p">,</span>
-                    <span class="nt">&quot;when&quot;</span><span class="p">:</span> <span class="s2">&quot;editorTextFocus &amp;&amp; !editorReadonly&quot;</span> <span class="p">},</span>
-<span class="p">{</span> <span class="nt">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;cmd+down&quot;</span><span class="p">,</span> <span class="nt">&quot;command&quot;</span><span class="p">:</span> <span class="s2">&quot;editor.action.moveLinesDownAction&quot;</span><span class="p">,</span>
-                        <span class="nt">&quot;when&quot;</span><span class="p">:</span> <span class="s2">&quot;editorTextFocus &amp;&amp; !editorReadonly&quot;</span> <span class="p">},</span>
-<span class="p">{</span> <span class="nt">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;cmd+up&quot;</span><span class="p">,</span> <span class="nt">&quot;command&quot;</span><span class="p">:</span> <span class="s2">&quot;editor.action.moveLinesUpAction&quot;</span><span class="p">,</span>
-                    <span class="nt">&quot;when&quot;</span><span class="p">:</span> <span class="s2">&quot;editorTextFocus &amp;&amp; !editorReadonly&quot;</span> <span class="p">},</span>
+<pre class="codehilite"><code class="language-json">[
+{ &quot;key&quot;: &quot;cmd+.&quot;, &quot;command&quot;: &quot;editor.action.commentLine&quot;,
+                    &quot;when&quot;: &quot;editorTextFocus &amp;&amp; !editorReadonly&quot; },
+{ &quot;key&quot;: &quot;cmd+l&quot;, &quot;command&quot;: &quot;workbench.action.gotoLine&quot; },
+{ &quot;key&quot;: &quot;cmd+g&quot;, &quot;command&quot;: &quot;editor.action.addSelectionToNextFindMatch&quot;,
+                    &quot;when&quot;: &quot;editorFocus&quot; },
+{ &quot;key&quot;: &quot;cmd+d&quot;,  &quot;command&quot;: &quot;editor.action.deleteLines&quot;,
+                    &quot;when&quot;: &quot;editorTextFocus &amp;&amp; !editorReadonly&quot; },
+{ &quot;key&quot;: &quot;cmd+down&quot;, &quot;command&quot;: &quot;editor.action.moveLinesDownAction&quot;,
+                        &quot;when&quot;: &quot;editorTextFocus &amp;&amp; !editorReadonly&quot; },
+{ &quot;key&quot;: &quot;cmd+up&quot;, &quot;command&quot;: &quot;editor.action.moveLinesUpAction&quot;,
+                    &quot;when&quot;: &quot;editorTextFocus &amp;&amp; !editorReadonly&quot; },
 
-<span class="p">{</span> <span class="nt">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;alt+down&quot;</span><span class="p">,</span> <span class="nt">&quot;command&quot;</span><span class="p">:</span> <span class="s2">&quot;scrollLineDown&quot;</span><span class="p">,</span>
-                        <span class="nt">&quot;when&quot;</span><span class="p">:</span> <span class="s2">&quot;editorTextFocus&quot;</span> <span class="p">},</span>
-<span class="p">{</span> <span class="nt">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;alt+up&quot;</span><span class="p">,</span> <span class="nt">&quot;command&quot;</span><span class="p">:</span> <span class="s2">&quot;scrollLineUp&quot;</span> <span class="p">,</span>
-                    <span class="nt">&quot;when&quot;</span><span class="p">:</span> <span class="s2">&quot;editorTextFocus&quot;</span> <span class="p">},</span>
-<span class="p">{</span> <span class="nt">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;cmd+shift+e&quot;</span><span class="p">,</span> <span class="nt">&quot;command&quot;</span><span class="p">:</span> <span class="s2">&quot;python.execSelectionInTerminal&quot;</span> <span class="p">},</span>
-<span class="p">{</span> <span class="nt">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;cmd+e&quot;</span><span class="p">,</span> <span class="nt">&quot;command&quot;</span><span class="p">:</span> <span class="s2">&quot;python.execInTerminal&quot;</span> <span class="p">},</span>
-<span class="p">{</span> <span class="nt">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;cmd+r&quot;</span><span class="p">,</span>  <span class="nt">&quot;command&quot;</span><span class="p">:</span> <span class="s2">&quot;python.refactorExtractVariable&quot;</span> <span class="p">},</span>
-<span class="p">]</span>
-</pre></div>
+{ &quot;key&quot;: &quot;alt+down&quot;, &quot;command&quot;: &quot;scrollLineDown&quot;,
+                        &quot;when&quot;: &quot;editorTextFocus&quot; },
+{ &quot;key&quot;: &quot;alt+up&quot;, &quot;command&quot;: &quot;scrollLineUp&quot; ,
+                    &quot;when&quot;: &quot;editorTextFocus&quot; },
+{ &quot;key&quot;: &quot;cmd+shift+e&quot;, &quot;command&quot;: &quot;python.execSelectionInTerminal&quot; },
+{ &quot;key&quot;: &quot;cmd+e&quot;, &quot;command&quot;: &quot;python.execInTerminal&quot; },
+{ &quot;key&quot;: &quot;cmd+r&quot;,  &quot;command&quot;: &quot;python.refactorExtractVariable&quot; },
+]</code></pre>
 
 
 <p><code>cmd+g</code> is definitely my favorite.</p>
 <p>A final remark: you can start block editing by holding <code>Shift+Alt</code> while selecting.</p>
 <p>Enjoy!</p>
-      </section>
-      <small>
-      
-        <a href="/tag/python.html">
-            <span class="label label-default" itemprop="about">python</span>
-        </a>
-      
-        <a href="/tag/ide.html">
-            <span class="label label-default" itemprop="about">ide</span>
-        </a>
-      
-        <a href="/tag/pyramid.html">
-            <span class="label label-default" itemprop="about">pyramid</span>
-        </a>
-      
-      
-          <p class="text-right">
-              Posted on <span itemprop="datePublished">2017-01-15</span>
-              <span itemprop="author" itemscope itemtype="https://schema.org/Person">
-                by <span itemprop="name">Martin Kirchgessner</span>
-              </span>
-          </p>
-      
-      </small>
     </div>
 
-        </div>
-      </div>
+</div>
+
     </div>
     <hr />
     <footer>
       <div class="container">
-        <div class="row">
-            <div class="col-md-4">
-              
-            </div>
-            <div class="col-md-4">
-              <p class="text-center"><small>martinkirch.github.io &copy; 2018</small></p>
-            </div>
+        <div class="row text-center">
+          
         </div>
+        <p class="text-center"><small>martinkirch.github.io &copy; 2018</small></p>
       </div>
     </footer>
-
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha256-KXn5puMvxCw+dAYznun+drMdG1IFl3agK0p/pqT9KAo= sha512-2e8qq0ETcfWRI4HJBzQiA3UoyFk6tbNyG+qSaIBZLyW9Xf3sWZHN/lxe9fTh1U45DpPf07yj94KsUHHWe4Yk1A==" crossorigin="anonymous"></script>
   </body>
 </html>
