@@ -9,10 +9,12 @@
 ############################ EMISSIONS ######################################
 
 
+# attention il faut que les répertoires existent au lancement du script, même vides
+
 emissions = switch(id="emissions", [
-  ({12h00-12h30}, single(id="superemission", "/home/radio/emissions/superemission/EpisodeCourant.flac")),
-  ({ 8h00-9h00},  single(id="matinale",      "/home/radio/emissions/matinale/EpisodeCourant.flac")),
-  ({18h00-19h00}, single(id="apero",         "/home/radio/emissions/apero/EpisodeCourant.flac"))
+  ({12h00-12h30}, playlist(reload_mode="watch", mode="normal", id="superemission", "/home/radio/emissions/superemission")),
+  ({ 8h00-9h00},  playlist(reload_mode="watch", mode="normal", id="matinale",      "/home/radio/emissions/matinale")),
+  ({18h00-19h00}, playlist(reload_mode="watch", mode="normal", id="apero",         "/home/radio/emissions/apero"))
 ])
 
 

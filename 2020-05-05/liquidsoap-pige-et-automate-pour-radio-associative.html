@@ -68,7 +68,8 @@
     </small>
 
     <div class="col-md-8 col-md-offset-2">
-      <p>Dans toutes les radios il y a un automate,
+      <p><em>MAJ 07/05/2020 : ne pas utiliser <code>single</code> pour les émissions enregistrées !</em></p>
+<p>Dans toutes les radios il y a un automate,
 qui désigne le logiciel qui joue à longueur de journées (et nuits)
 la musique ou les programmes enregistrés.
 Pour une radio associative cet automate remplit souvent la majorité du temps
@@ -446,35 +447,27 @@ La condition de jour n'est pas obligatoire, on aurait pu mettre une seule ligne 
 <p>On rajoute un <code>mksafe</code> à la fin car <code>switch</code> n'est sûre que si elle contient une source sûre avec une condition toujours vraie.</p>
 <h3>Une émission enregistrée</h3>
 <p>Programmons maintenant une émission pré-enregistrée.
-Il faut d'abord une source correspondant à l'émission.</p>
-<p>Le plus simple est de charger uniquement l'épisode à diffuser :
-on utilise alors une source <code>single</code> qui pointe un fichier,
-que vous pouvez remplacer par un nouvel épisode au fur et à mesure.
-Ce qui donne :</p>
-<div class="codehilite"><pre><span></span><code><span class="n">single</span><span class="o">(</span><span class="s2">&quot;/home/radio/emissions/superemission/EpisodeCourant.flac&quot;</span><span class="o">)</span>
+Il faut d'abord une source correspondant à l'émission.
+Pour parer au cas où on aurait pas d'épisode pour cette fois,
+nous allons utiliser <code>playlist</code> et pointer vers une répertoire.
+S'il n'y a pas de fichiers,
+ce la donnera une playlist vide et la source ne sera pas disponible donc ne jouera pas.</p>
+<p>On va utiliser l'option <code>reload_mode="watch"</code>,
+pour que la playlist soit re-chargée dès qu'un fichier bouge dans le répertoire.
+Donc pas besoin de relancer Liquidsoap dès qu'on met à jour un épisode.</p>
+<p>On ajoute aussi le paramètre <code>mode="normal"</code>, ainsi
+s'il y a plusieurs fichiers alors Liquidsoap les lira dans l'ordre du nom de fichier.
+Mais attention la rotation reprendra du premier dès que Liquidsoap sera relancé
+(ça peut arriver par accident) ou dès qu'un fichier bouge dans le répertoire.
+Le mode par défaut lirait les fichiers dans l'ordre aléatoire.</p>
+<p>Ce qui donne :</p>
+<div class="codehilite"><pre><span></span><code><span class="n">playlist</span><span class="o">(</span><span class="s2">&quot;/home/radio/emissions/superemission&quot;</span><span class="o">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;normal&quot;</span><span class="o">,</span> <span class="n">reload_mode</span><span class="o">=</span><span class="s2">&quot;watch&quot;</span><span class="o">)</span>
 </code></pre></div>
 
 
-<p>Attention les meta-données (dont le titre) ne sont pas re-chargées si le fichier change
-pendant que Liquidsoap tourne.</p>
-<p>Si vous pre-chargez plusieurs épisodes, vous pouvez utiliser <code>playlist</code> et
-pointer vers une répertoire, par exemple en faisant</p>
-<div class="codehilite"><pre><span></span><code><span class="n">mksafe</span><span class="o">(</span><span class="n">playlist</span><span class="o">(</span><span class="s2">&quot;/home/radio/emissions/superemission&quot;</span><span class="o">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;normal&quot;</span><span class="o">,</span> <span class="n">reload_mode</span><span class="o">=</span><span class="s2">&quot;watch&quot;</span><span class="o">))</span>
-</code></pre></div>
-
-
-<p>Grâce à <code>mode="normal"</code> la liste sera prise dans l'ordre des noms de fichiers,
-et grâce à <code>reload_mode="watch"</code> la playlist sera re-initialisée dès qu'un
-fichier bouge dans le répertoire.
-Attention, avec cette méthode <em>tous</em> les fichiers du répertoire seront lus,
-et l'ordre n'est garanti que tant que vous ne redémarrez pas Liquisoap,
-donc ne chargez pas un an d'avance : s'il y a une coupure d'electricité,
-il repartira du premier.</p>
-<p>Choisissez une des deux méthodes.
-Disons que la source de votre émission s'appelle <code>superemission</code>,
-on a plus qu'a l'intégrer au <code>switch</code> musical
+<p>On aurait plus qu'a l'intégrer au <code>switch</code> musical
 avec une condition pour la passer le Samedi à 12h ?</p>
-<div class="codehilite"><pre><span></span><code><span class="n">superemission</span> <span class="o">=</span> <span class="n">single</span><span class="o">(</span><span class="s2">&quot;/home/radio/emissions/superemission/EpisodeCourant.flac&quot;</span><span class="o">)</span>
+<div class="codehilite"><pre><span></span><code><span class="n">superemission</span> <span class="o">=</span> <span class="n">playlist</span><span class="o">(</span><span class="s2">&quot;/home/radio/emissions/superemission&quot;</span><span class="o">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;normal&quot;</span><span class="o">,</span> <span class="n">reload_mode</span><span class="o">=</span><span class="s2">&quot;watch&quot;</span><span class="o">)</span>
 
 <span class="n">semaine_musicale</span> <span class="o">=</span> <span class="n">switch</span><span class="o">([</span>
   <span class="o">(</span> <span class="o">{</span><span class="mi">6</span><span class="n">w</span> <span class="ow">and</span> <span class="mi">12</span><span class="n">h</span><span class="o">},</span> <span class="n">superemission</span><span class="o">),</span>

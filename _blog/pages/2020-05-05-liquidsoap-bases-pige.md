@@ -6,6 +6,8 @@ tags: liquidsoap, en_français
 type: post
 
 
+_MAJ 07/05/2020 : ne pas utiliser `single` pour les émissions enregistrées !_
+
 Dans toutes les radios il y a un automate,
 qui désigne le logiciel qui joue à longueur de journées (et nuits)
 la musique ou les programmes enregistrés.
@@ -429,39 +431,31 @@ On rajoute un `mksafe` à la fin car `switch` n'est sûre que si elle contient u
 
 Programmons maintenant une émission pré-enregistrée.
 Il faut d'abord une source correspondant à l'émission.
+Pour parer au cas où on aurait pas d'épisode pour cette fois,
+nous allons utiliser `playlist` et pointer vers une répertoire.
+S'il n'y a pas de fichiers,
+ce la donnera une playlist vide et la source ne sera pas disponible donc ne jouera pas.
 
-Le plus simple est de charger uniquement l'épisode à diffuser :
-on utilise alors une source `single` qui pointe un fichier,
-que vous pouvez remplacer par un nouvel épisode au fur et à mesure.
+On va utiliser l'option `reload_mode="watch"`,
+pour que la playlist soit re-chargée dès qu'un fichier bouge dans le répertoire.
+Donc pas besoin de relancer Liquidsoap dès qu'on met à jour un épisode.
+
+On ajoute aussi le paramètre `mode="normal"`, ainsi
+s'il y a plusieurs fichiers alors Liquidsoap les lira dans l'ordre du nom de fichier.
+Mais attention la rotation reprendra du premier dès que Liquidsoap sera relancé
+(ça peut arriver par accident) ou dès qu'un fichier bouge dans le répertoire.
+Le mode par défaut lirait les fichiers dans l'ordre aléatoire.
+
 Ce qui donne :
 
     :::ocaml
-    single("/home/radio/emissions/superemission/EpisodeCourant.flac")
+    playlist("/home/radio/emissions/superemission", mode="normal", reload_mode="watch")
 
-Attention les meta-données (dont le titre) ne sont pas re-chargées si le fichier change
-pendant que Liquidsoap tourne.
-
-Si vous pre-chargez plusieurs épisodes, vous pouvez utiliser `playlist` et
-pointer vers une répertoire, par exemple en faisant
-
-    :::ocaml
-    mksafe(playlist("/home/radio/emissions/superemission", mode="normal", reload_mode="watch"))
-
-Grâce à `mode="normal"` la liste sera prise dans l'ordre des noms de fichiers,
-et grâce à `reload_mode="watch"` la playlist sera re-initialisée dès qu'un
-fichier bouge dans le répertoire.
-Attention, avec cette méthode *tous* les fichiers du répertoire seront lus,
-et l'ordre n'est garanti que tant que vous ne redémarrez pas Liquisoap,
-donc ne chargez pas un an d'avance : s'il y a une coupure d'electricité,
-il repartira du premier.
-
-Choisissez une des deux méthodes.
-Disons que la source de votre émission s'appelle `superemission`,
-on a plus qu'a l'intégrer au `switch` musical
+On aurait plus qu'a l'intégrer au `switch` musical
 avec une condition pour la passer le Samedi à 12h ?
 
     :::ocaml
-    superemission = single("/home/radio/emissions/superemission/EpisodeCourant.flac")
+    superemission = playlist("/home/radio/emissions/superemission", mode="normal", reload_mode="watch")
 
     semaine_musicale = switch([
       ( {6w and 12h}, superemission),
