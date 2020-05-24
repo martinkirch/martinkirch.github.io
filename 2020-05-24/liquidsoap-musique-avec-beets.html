@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title> Des playlists musicales futées pour Liquidsoap avec Beets </title>
+    <meta name="description" content="Entasser les FLAC dans un répertoire ça marche, mais les prendre dans une discothèque c'est mieux."/>
+    <meta name="keywords" content=" liquidsoap, en_français" />
+
+    <!-- Bootstrap -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+
+    <link href="/pygments.css" rel="stylesheet">
+
+    <style>
+      pre{
+        background: #eee;
+        padding:1em;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="/">C'est toi le titre</a>
+        </div>
+        <ul class="nav navbar-nav navbar-right">
+            
+                
+                    <li><a href="/">All posts</a></li>
+                
+                    <li><a href="/tags.html">Tags</a></li>
+                
+            
+          </ul>
+      </div>
+    </nav>
+
+    <div class="container">
+      
+<div itemscope itemtype="http://schema.org/NewsArticle">
+  <meta itemscope itemprop="mainEntityOfPage"  itemType="https://schema.org/WebPage" itemid="http://martinkirch.github.io/2020-05-24/liquidsoap-musique-avec-beets.html"/>
+  <div class="page-header">
+    <h1 itemprop="name">Des playlists musicales futées pour Liquidsoap avec Beets</h1>
+    
+  </div>
+
+  <small>Tags : 
+    
+      <a href="/tag/liquidsoap.html">
+          <span class="label label-default" itemprop="about">liquidsoap</span>
+      </a>
+    
+      <a href="/tag/en_français.html">
+          <span class="label label-default" itemprop="about">en_français</span>
+      </a>
+    
+    
+        <p class="text-right">
+            Posted on <span itemprop="datePublished">2020-05-24</span>
+            <span itemprop="author" itemscope itemtype="https://schema.org/Person">
+              by <span itemprop="name">Martin Kirchgessner</span>
+            </span>
+        </p>
+    
+    </small>
+
+    <div class="col-md-8 col-md-offset-2">
+      <p>Dans le <a href="/TODO">premier épisode</a> nous avions créé un automate radio basique,
+qui piochait la musique dans certains répertoires.
+C'est un bon début mais ce serait plus pratique de ne pas avoir à pre-sélectionner
+par répertoires : même avec des sous-répertoires on peut se retrouver dupliquer certains titres, et changer d'avis sur le rangement sera compliqué après en avoir ajouté 1000.
+Il faudrait plutôt une librairie musicale à notre radio :
+quelque chose qui répertorie les titres et soit capable d'en sortir une sélection sur n'importe quels critères.</p>
+<p>Dans cet article on va s'intéresser à <a href="https://beets.io">Beets</a>,
+qui est un logiciel (en ligne de commande, encore !)
+de gestion de bibliothèque musicale.
+Il permet de ranger les fichiers par artiste/album et il vérifie les tags :
+c'est le meilleur ami de votre discothèque.</p>
+<p>Cet article va s'intéresser à l'intégration avec Liquidsoap.
+Beets est déjà documenté et pas très long à installer
+(voir <a href="https://beets.readthedocs.io/en/stable/guides/main.html#installing">ici</a>).
+Il peut être long à comprendre et alimenter, c'est vrai.
+Pour vite passer à la suite (et surtout si vos fichiers sont déjà bien taggés)
+lancez <code>beet import -A /home/moi/Musique</code> pour tout importer d'un coup...
+mais disons qu'un jour il vous faudra lire sa documentation.</p>
+<h2>Beets comme source de playlists</h2>
+<p>Quand on cherche dans Beets (<code>beet ls</code>)
+il peut nous donner les résultats sous la forme d'une liste de fichiers, en précisant <code>-f '$path'</code>.
+Autrement dit : il peut générer une playlist.
+Surtout avec <code>beet random</code>,
+qui choisit aléatoirement un titre parmi les résultats d'une recherche.
+Nous allons donc l'intégrer comme un protocole Liquidsoap.</p>
+<p>Qu'est-ce qu'un protocole ?
+Par exemple quand on écrit 
+<code>playlist("http://live.campusgrenoble.org:9000/rcg112.m3u")</code> le protocole c'est <code>http</code>.
+Nous allons ajouter un protocole qui s'appellera <code>beets</code>, qui appellera <code>beet random</code>.
+Par défaut <code>beet random</code> ne sélectionne qu'un titre,
+mais en utilisant l'option <code>-t N</code> il peut en sélectionner plusieurs, totalisant au plus N minutes.
+On pourra donc générer presque une heure de playlist "tournante", toutes les heures, en appelant <code>playlist("beets:-t60", mode="normal", reload=3600)</code>.
+On précisera <code>normal</code> car par défaut <code>playlist</code> parcoure la playlist aléatoirement,
+or l'aléa est déjà assuré par <code>beets random</code>.</p>
+<p>Liquidsoap permet d'ajouter un protocole en lui donnant un petit nom et une
+fonction qui décidera que faire de ce qu'il y a après le <code>:</code> qui suit le nom du protocole.
+Pour ce qui nous intéresse, on peut définir cette fonction puis appeler <code>add_protocol</code> ainsi :</p>
+<div class="codehilite"><pre><span></span><code><span class="n">def</span> <span class="n">beets_protocol</span><span class="o">(~</span><span class="n">rlog</span><span class="o">,~</span><span class="n">maxtime</span><span class="o">,</span><span class="n">arg</span><span class="o">)</span> <span class="o">=</span>
+  <span class="n">tmp_playlist</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">temp</span><span class="o">(</span><span class="s2">&quot;beetsplaylist&quot;</span><span class="o">,</span> <span class="s2">&quot;.m3u8&quot;</span><span class="o">)</span>
+  <span class="n">ignore</span><span class="o">(</span><span class="n">get_process_lines</span><span class="o">(</span>
+    <span class="s2">&quot;/home/martin/beets/bin/beet random -f &#39;$path&#39; #{arg} &gt; #{tmp_playlist}&quot;</span>
+  <span class="o">))</span>
+  <span class="o">[</span><span class="n">tmp_playlist</span><span class="o">]</span>
+<span class="k">end</span>
+<span class="n">add_protocol</span><span class="o">(</span><span class="s2">&quot;beets&quot;</span><span class="o">,</span> <span class="n">beets_protocol</span><span class="o">)</span>
+</code></pre></div>
+
+
+<p>Dans la fonction, remplacez <code>/home/martin/beets/bin/beet</code> par le chemin complet chez vous
+(affiché par la commande <code>which beet</code>).
+A part cela vous pouvez utilisez la fonction telle quelle,
+mais elle mérite quelques explications :</p>
+<ul>
+<li>Notre fonction s'appelle <code>beets_protocol</code> ;
+   Liquidsoap impose que les fonctions d'interprétation des protocoles aient les
+   arguments <code>~rlog,~maxtime,arg</code>, même si on ne va se servir que d'<code>arg</code>. </li>
+<li>La playlist sera générée dans un fichier temporaire, <code>tmp_playlist</code>,
+   qui d'après ce qu'on a donné à <code>file.temp</code> va ressembler à <code>/tmp/beetsplaylist***.m3u8</code>.</li>
+<li><code>ignore(get_process_lines(</code> sert à appeler un programme, comme en ligne de commande.</li>
+<li>on appelle <code>beet random</code>.</li>
+<li><code>-f '$path'</code> veut dire qu'on demande à Beets de lister chaque résultat par nom de fichier.</li>
+<li><code>arg</code> est ce qui est après les <code>:</code> quand on utilise le protocole.
+   Par exemple si on écrit <code>playlist("beets:-t60 genre:Rock")</code>,
+   alors <code>arg</code> contiendra <code>-t60 genre:Rock</code>.</li>
+<li><code>&gt; #{tmp_playlist}</code> redirige la sortie de <code>beet</code> vers le fichier dont le nom est dans <code>tmp_playlist</code> (donc le <code>/tmp/beetsplaylist***.m3u8</code>).</li>
+<li><code>[tmp_playlist]</code> est une liste qui ne contient qu'un élément :
+   le nom du fichier temporaire. Et comme c'est la dernière instruction de la fonction,
+   c'est cette liste qui sera retournée par la fonction. C'est donc depuis ce fichier que Liquidsoap va effectivement charger la playlist.</li>
+<li><code>add_protocol("beets", beets_protocol)</code> est l'instruction à partir de laquelle toute les requêtes commençant par <code>beets:</code> seront tranmise à notre fonction <code>beets_protocol</code>.</li>
+</ul>
+<p>Si on laisse tourner longtemps un script utilisant ce protocole, on va finir par remplir <code>/tmp</code> de nos playlists temporaires.
+Ce n'est pas très pratique alors ajoutons aussi une fonction qui va régulièrement faire le ménage :</p>
+<div class="codehilite"><pre><span></span><code><span class="n">exec_at</span><span class="o">(</span><span class="n">freq</span><span class="o">=</span><span class="mi">3600</span><span class="o">.,</span> <span class="n">pred</span><span class="o">={</span> <span class="bp">true</span> <span class="o">},</span>
+  <span class="k">fun</span> <span class="bp">()</span> <span class="o">-&gt;</span> <span class="kt">list</span><span class="o">.</span><span class="n">iter</span><span class="o">(</span><span class="k">fun</span><span class="o">(</span><span class="n">msg</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="n">log</span><span class="o">(</span><span class="n">msg</span><span class="o">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;nettoyeur_playlists&quot;</span><span class="o">),</span>
+    <span class="n">get_process_lines</span><span class="o">(</span><span class="s2">&quot;find /tmp -iname beetsplaylist*m3u8 -mtime +0 -delete&quot;</span><span class="o">),</span>
+  <span class="o">)</span>
+<span class="o">)</span>
+</code></pre></div>
+
+
+<p>A partir de là,
+on peut donc faire une source infinie de musique aléatoire avec
+<code>playlist("beets:-t60", mode="normal", reload=3600)</code>.
+Mais en fait cette boucle musicale n'est pas vraiment suffisante :</p>
+<ul>
+<li><code>beets random -t60</code> génère une liste dont la longueur <em>maximale</em> est de 60 minutes,
+souvent il ne trouve pas de quoi boucher les dernières minutes/secondes.
+Par conséquent, si on ne la rafraîchit que toutes les heures, le premier morceau
+risque de rejouer en fin d'heure.</li>
+<li>En plus, sur le long terme les morceaux courts vont être joués plus souvent
+que les autres car ce sont les seuls avec lesquels Beets parviendra à boucher
+les fins de playlists.</li>
+</ul>
+<p>Pour éviter ceux deux désagréments vous pouvez augmenter le <code>60</code> ou réduire le <code>3600</code> ...
+ou bien alterner régulièrement avec d'autres playlists.
+Comme on l'a vu dans l'article précédent, avec <code>random</code> on peut passer d'une playlist à l'autre (tout, francophone, récent, etc.).</p>
+<h2>Quelques exemples de playlists en <code>beets:</code></h2>
+<p>Les chansons francophones peuvent être sélectionnées avec
+<code>language:fra</code>, qui fait une recherche dans Beets en filtrant les pistes taggués <code>fra</code> dans le champ <code>language</code>.</p>
+<p>Il y a d'autres champs, notamment <code>genre</code> ;
+on pourrait générer une heure de rock avec <code>playlist("beets:-t60 genre:Rock")</code>.
+Attention <code>genre:Rock</code> recoupe aussi <code>Indie Rock</code>, <code>Punk Rock</code>... 
+Vous pouvez tester vos sélecteurs <code>beets</code> en essayant directement depuis
+la ligne de commande, en tapant par exemple <code>beets random -f '$genre $path' -t60 genre:Rock</code>
+(on ajoute <code>$genre</code> au <code>-f</code> pour voir ce qu'il contient vraiment).
+Ou encore avec la commande de recherche habituelle: <code>beet ls genre:Rock</code>.</p>
+<p>Il y a aussi des champs "techniques",
+par exemple <code>added</code> qui est la date d'ajout du titre dans Beets.
+On peut s'en servir pour retrouver les titres ajoutés il y a moins d'un mois avec <code>added:-1m..</code>,
+ou encore il y a moins de 7 jours avec <code>added:-7d..</code>
+Il y a <a href="https://beets.readthedocs.io/en/stable/reference/query.html">plein d'autres possibilités</a>,
+tous ces critères peuvent être combinés
+et vous pouvez aussi <a href="https://beets.readthedocs.io/en/stable/guides/advanced.html#store-any-data-you-like">tagger avec vos propres champs</a>.
+Vous aurez donc de quoi créer des sources Liquidsoap qui piochent très précisément dans votre librairie.</p>
+<p>Les informations sur un titre dans Beets vont au-delà des tags ID3.
+Pour voir tout ce que stocke Beets sur un titre
+(par exemple, un classique de Jimi Hendrix)
+tapez</p>
+<div class="codehilite"><pre><span></span><code><span class="err">beet info -l All along the watchtower</span>
+</code></pre></div>
+
+
+<p>Mais ces informations ne tombent pas du ciel.
+Elles seront bonnes si Beets a réussi à recoller les titres avec <a href="https://musicbrainz.org/">MusicBrainz</a>...
+ce qui dépend du temps que vous avez passé à l'importation.
+Vous préfèrerez peut-être le plug-in suivant.</p>
+<h2>drop2beets</h2>
+<p>Beets est conçu pour importer des albums complets,
+et vérifie/corrige les tags de toutes les pistes en commençant l'import par une recherche dans
+<a href="https://musicbrainz.org/">MusicBrainz</a>.
+Ce niveau de rigueur peut coûter cher en temps, et en radio on va plutôt utiliser des singles
+(qui s'importent avec l'option <code>-s</code> de <code>beet imp</code>).
+Pour faire plus rapide,
+j'ai créé un plug-in Beets qui importe un fichier dès qu'il est déplacé/copié
+dans un répertoire de votre choix
+(c'est tout à fait inspiré de la dropbox Rivendell développée par feu Tryphon).</p>
+<p>Avec ce plug-in il est possible,
+en écrivant un petit peu de Python,
+de forcer certains tags du fichier en fonction du sous-répertoire dans lequel il a atteri.
+Vous trouverez ce plug-in sur <a href="https://github.com/martinkirch/drop2beets">GitHub</a>,
+et en radio asso française <a href="https://github.com/martinkirch/drop2beets/blob/master/examples/force_genre_and_language_by_folder.py">cet exemple</a> correspond à l'usage qui consiste à
+s'assurer de l'uniformité des tags de genre et de langue.</p>
+<h2>Le plug-in Web</h2>
+<p>Beets est fourni avec un plug-in "Web", qui est une interface Web rudimentaire
+pour faciliter la consultation de la librairie sur votre réseau local.
+Les détails d'installation sont
+<a href="https://beets.readthedocs.io/en/stable/plugins/web.html">dans la documentation officielle</a>.
+Il créé un serveur HTTP léger
+mais suffisant pour le réseau local d'une petite radio.
+On recommande !</p>
+<h2>Conclusion</h2>
+<p>Le script complet de la radio entamée la dernière fois, avec en plus
+l'intégration de Beets, est téléchargeable <a href="02-radio.liq">ici</a>.
+Cette intégration n'est pas nécessaire à notre automate,
+et ajoute une couche de complexité à l'administration :
+Beets nécessite de la pratique pour importer et nettoyer une discothèque complète.
+Mais c'est bien pratique pour séparer le stockage et rangement de la musique de sa diffusion.
+A partir de là on peut génerer des playlists correspondant à des styles,
+artistes, années, etc.</p>
+<p><em>Cet article est le deuxième d'un série sur Liquidsoap ; retrouvez tous les articles de la série <a href="/tag/liquidsoap.html">ici</a>.</em></p>
+    </div>
+
+</div>
+
+    </div>
+    <hr />
+    <footer>
+      <div class="container">
+        <div class="row text-center">
+          
+        </div>
+        <p class="text-center"><small>martinkirch.github.io &copy; 2020</small></p>
+      </div>
+    </footer>
+  </body>
+</html>
