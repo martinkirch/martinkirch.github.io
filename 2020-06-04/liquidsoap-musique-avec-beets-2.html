@@ -168,7 +168,7 @@ qui à chaque fois qu'elle doit préparer la prochaine piste va appeller la fonc
 <li><code>-f '$path'</code> veut dire qu'on demande à Beets de lister chaque résultat par nom de fichier.</li>
 </ul>
 <p>Autrement dit, avec cette fonction le chemin de fichier retourné par <code>beet random</code>
-sera transformé en une <code>requets</code> que va lire Liquidsoap.</p>
+sera transformé en une <code>request</code> que va lire Liquidsoap.</p>
 <p>C'est un bon début mais il nous faudrait plutôt une fonction qui transmette notre requête à <code>beets</code>,
 pour pouvoir créer plusieurs sources avec la même fonction.
 Pour cela, on va transformer l'appel à Beets en une fonction qui retourne une fonction directement utilisable par <code>request.dynamic.list</code>. Ce qui donne :</p>

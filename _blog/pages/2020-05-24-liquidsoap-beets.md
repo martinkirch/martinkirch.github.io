@@ -5,7 +5,7 @@ slug: liquidsoap-musique-avec-beets
 tags: liquidsoap, en_français
 type: post
 
-***Mise à jour: voyez plutôt [la deuxième version de cet article](/2020-05-04/liquidsoap-musique-avec-beets-2.html)***
+***Mise à jour: voyez plutôt [la deuxième version de cet article](/2020-06-04/liquidsoap-musique-avec-beets-2.html)***
 
 Dans le [premier épisode](/2020-05-05/liquidsoap-pige-et-automate-pour-radio-associative.html) nous avions créé un automate radio basique,
 qui piochait la musique dans certains répertoires.
