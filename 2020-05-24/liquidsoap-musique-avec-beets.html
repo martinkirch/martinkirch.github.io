@@ -68,7 +68,8 @@
     </small>
 
     <div class="col-md-8 col-md-offset-2">
-      <p>Dans le <a href="/TODO">premier épisode</a> nous avions créé un automate radio basique,
+      <p><strong><em>Mise à jour: voyez plutôt <a href="/2020-05-04/liquidsoap-musique-avec-beets-2.html">la deuxième version de cet article</a></em></strong></p>
+<p>Dans le <a href="/2020-05-05/liquidsoap-pige-et-automate-pour-radio-associative.html">premier épisode</a> nous avions créé un automate radio basique,
 qui piochait la musique dans certains répertoires.
 C'est un bon début mais ce serait plus pratique de ne pas avoir à pre-sélectionner
 par répertoires : même avec des sous-répertoires on peut se retrouver dupliquer certains titres, et changer d'avis sur le rangement sera compliqué après en avoir ajouté 1000.
@@ -198,12 +199,12 @@ Vous préfèrerez peut-être le plug-in suivant.</p>
 <p>Beets est conçu pour importer des albums complets,
 et vérifie/corrige les tags de toutes les pistes en commençant l'import par une recherche dans
 <a href="https://musicbrainz.org/">MusicBrainz</a>.
-Ce niveau de rigueur peut coûter cher en temps, et en radio on va plutôt utiliser des singles
-(qui s'importent avec l'option <code>-s</code> de <code>beet imp</code>).
+Ce niveau de rigueur peut coûter cher en temps, et en radio on va plutôt utiliser des singles,
+qui s'importent avec l'option <code>-s</code> de <code>beet imp</code>.
 Pour faire plus rapide,
 j'ai créé un plug-in Beets qui importe un fichier dès qu'il est déplacé/copié
-dans un répertoire de votre choix
-(c'est tout à fait inspiré de la dropbox Rivendell développée par feu Tryphon).</p>
+dans un répertoire de votre choix.
+Oui, c'est tout à fait inspiré de la dropbox Rivendell développée par feu Tryphon.</p>
 <p>Avec ce plug-in il est possible,
 en écrivant un petit peu de Python,
 de forcer certains tags du fichier en fonction du sous-répertoire dans lequel il a atteri.

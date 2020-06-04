@@ -5,7 +5,9 @@ slug: liquidsoap-musique-avec-beets
 tags: liquidsoap, en_français
 type: post
 
-Dans le [premier épisode](/TODO) nous avions créé un automate radio basique,
+***Mise à jour: voyez plutôt [la deuxième version de cet article](/2020-05-04/liquidsoap-musique-avec-beets-2.html)***
+
+Dans le [premier épisode](/2020-05-05/liquidsoap-pige-et-automate-pour-radio-associative.html) nous avions créé un automate radio basique,
 qui piochait la musique dans certains répertoires.
 C'est un bon début mais ce serait plus pratique de ne pas avoir à pre-sélectionner
 par répertoires : même avec des sous-répertoires on peut se retrouver dupliquer certains titres, et changer d'avis sur le rangement sera compliqué après en avoir ajouté 1000.
