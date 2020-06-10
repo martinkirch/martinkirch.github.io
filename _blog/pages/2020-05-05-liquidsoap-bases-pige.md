@@ -651,10 +651,10 @@ programmer quelque chose ponctuellement,
 programmer la musique par style,
 garder une trace de la liste de lecture, faire des décrochages, etc.
 C'est possible en étoffant le script et/ou ajoutant quelques programmes autour de Liquidsoap.
-Mais c'est plus ou moins évident donc ce sera l'objet d'autres articles !
+D'ailleurs cet article est le premier d'un série sur Liquidsoap ; retrouvez tous les articles de la série [ici](/tag/liquidsoap.html).
 
-En attendant vous pouvez plonger dans
+Vous pouvez aussi plonger dans
 [la documentation de Liquidsoap](https://www.liquidsoap.info/doc),
 notamment [la liste des commandes pour triturer les sources](https://www.liquidsoap.info/doc-dev/reference.html#source-track-processing).
-On peut aussi en discuter sur [Twitter](https://twitter.com/martin_kirch)
+On peut en discuter sur [Twitter](https://twitter.com/martin_kirch)
 ou [Github](https://github.com/martinkirch/martinkirch.github.io/issues).
