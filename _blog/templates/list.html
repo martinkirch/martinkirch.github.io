@@ -27,12 +27,12 @@
           Page:
         {% for page in range(total_pages) %}
             {% if page_number == page %}
-                {{ page_number }}
+                {{ page_number+1 }}
             {% else %}
                 {% if tag %}
-                    <a href="/tag/{{ tag }}/page{{ page }}.html">{{ page }}</a>
+                    <a href="/tag/{{ tag }}/page{{ page }}.html">{{ page+1 }}</a>
                 {% else %}
-                    <a href="/page{{ page }}.html">{{ page }}</a>
+                    <a href="/page{{ page }}.html">{{ page+1 }}</a>
                 {% endif %}
             {% endif %}
         {% endfor %}
