@@ -3,13 +3,16 @@
 {% block title %} {{ page_title }} - {{ site_title }} {% endblock %}
 
 {% block content %}
-    <div class="page-header">
+
+<header class="container">
       <h1>{{ page_title }}</h1>
       <p class="lead">{{ page_brefing }}</p>
-    </div>
+</header>
+<section class="container">
       <ul>
       {% for item in page_items %}
         <li><a href="{{ item['page_url'] }}">{{ item['page_title'] }}</a> - {{ item['page_brefing'] }}</li>
       {% endfor %}
       </ul>
+</section>
 {% endblock %}
