@@ -8,6 +8,7 @@
         "author": "Martin Kirchgessner",
         "briefing": "Parce qu'il me fallait un endoit où publier quelques notes.",
         "links": {
+          "RSS": "/rss.xml",
           "Tags": "/tags.html"
         }
     },

@@ -5,6 +5,8 @@
     <meta name="description" content="{% if page_briefing %}{{ page_briefing }}{% else %}{{ site_briefing }}{% endif %}"/>
     <meta name="keywords" content="{% if page_tags %} {{ page_tags|join(', ') }}{% endif %}" />
     
+    <link rel="alternate" type="application/rss+xml" title="Flux RSS des articles" href="/rss.xml" />
+
     <link rel="stylesheet" href="https://unpkg.com/normalize.css">
     <link rel="stylesheet" href="https://unpkg.com/concrete.css">
     <link href="/pygments.css" rel="stylesheet">
@@ -38,7 +40,7 @@
       {% block content %}
       {% endblock %}
 
-      <footer class="container" style="font-size:80%; text-align:center;">
+      <footer class="container" style="font-size:70%; text-align:center;">
         <p>
           Text, images and programs by Martin Kirchgessner<br/>
           licensed under
