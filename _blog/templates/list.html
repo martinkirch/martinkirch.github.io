@@ -11,14 +11,15 @@
     {% endif %}
     {% for item in page_items %}
         <section class="container">
+            {% if item['page_date'] %}
+                <p style="float:right"><small>
+                {{ item['page_date'] }}
+                </small></p>
+            {% endif %}
             <h3><a href="/{{ item['page_url'] }}">{{ item['page_title'] }}</a></h3>
-            <small>
-                {% for tag in item['page_tags'] %}
-                    <a href="/tag/{{ tag|replace(' ', '-') }}.html">
-                        <span class="label label-default">{{ tag }}</span></a>
-                {% endfor %}
-            </small>
-            <p>{{ item['page_briefing'] }}</p>
+            <p>
+            {{ item['page_briefing'] }}
+            </p>
             <hr/>
         </section>
     {% endfor %}

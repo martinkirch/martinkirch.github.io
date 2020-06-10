@@ -19,7 +19,7 @@ It just changes their order, to distinguish groups and maybe order within each g
 
 Some functions are designed to work on these windows: it's a powerful tool
 better explained and illustrated by the 
-[Postgres Tutoriql](http://www.postgresqltutorial.com/postgresql-window-function/).
+[Postgres Tutorial](http://www.postgresqltutorial.com/postgresql-window-function/).
 In the following I'll assume you know what they do.
 
 # Explaining this to SQLAlchemy
@@ -41,15 +41,14 @@ We firstly have to detail the window function and its grouping/ordering ;
 this function is added to the sub-query's selected columns,
 and made available by two SQLQlchemy tricks:
 
-```python
-rownb = sa.func.row_number().over(order_by=Document.date.desc(), partition_by=Document.folder_id)
-rownb = rownb.label('rownb')
+    :::python
+    rownb = sa.func.row_number().over(order_by=Document.date.desc(), partition_by=Document.folder_id)
+    rownb = rownb.label('rownb')
 
-subq = session.query(Document, rownb) # add interesting filters here
+    subq = session.query(Document, rownb) # add interesting filters here
 
-# we need these two lines to match Document columns in subq, and to filter by rownb
-subq = subq.subquery(name="subq", with_labels=True)
-q = session.query(sa.orm.aliased(Document, alias=subq)).filter(subq.c.rownb == 1)
-```
+    # we need these two lines to match Document columns in subq, and to filter by rownb
+    subq = subq.subquery(name="subq", with_labels=True)
+    q = session.query(sa.orm.aliased(Document, alias=subq)).filter(subq.c.rownb == 1)
 
 Hope this helps !

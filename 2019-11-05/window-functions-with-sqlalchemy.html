@@ -65,7 +65,7 @@ The big difference with <code>GROUP BY</code> is that the engine keeps (and retu
 It just changes their order, to distinguish groups and maybe order within each group.</p>
 <p>Some functions are designed to work on these windows: it's a powerful tool
 better explained and illustrated by the 
-<a href="http://www.postgresqltutorial.com/postgresql-window-function/">Postgres Tutoriql</a>.
+<a href="http://www.postgresqltutorial.com/postgresql-window-function/">Postgres Tutorial</a>.
 In the following I'll assume you know what they do.</p>
 <h1>Explaining this to SQLAlchemy</h1>
 <p>To filter rows in a group, <code>GROUP BY</code> can be used with a <code>HAVING</code> clause.
@@ -82,20 +82,27 @@ Instead, we have to use SQLAlchemy aliases.</p>
 <p>We firstly have to detail the window function and its grouping/ordering ;
 this function is added to the sub-query's selected columns,
 and made available by two SQLQlchemy tricks:</p>
-<p>```python
-rownb = sa.func.row_number().over(order_by=Document.date.desc(), partition_by=Document.folder_id)
-rownb = rownb.label('rownb')</p>
-<p>subq = session.query(Document, rownb) # add interesting filters here</p>
-<h1>we need these two lines to match Document columns in subq, and to filter by rownb</h1>
-<p>subq = subq.subquery(name="subq", with_labels=True)
-q = session.query(sa.orm.aliased(Document, alias=subq)).filter(subq.c.rownb == 1)
-```</p>
+<div class="codehilite"><pre><span></span><code><span class="n">rownb</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">row_number</span><span class="p">()</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">order_by</span><span class="o">=</span><span class="n">Document</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">desc</span><span class="p">(),</span> <span class="n">partition_by</span><span class="o">=</span><span class="n">Document</span><span class="o">.</span><span class="n">folder_id</span><span class="p">)</span>
+<span class="n">rownb</span> <span class="o">=</span> <span class="n">rownb</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="s1">&#39;rownb&#39;</span><span class="p">)</span>
+
+<span class="n">subq</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Document</span><span class="p">,</span> <span class="n">rownb</span><span class="p">)</span> <span class="c1"># add interesting filters here</span>
+
+<span class="c1"># we need these two lines to match Document columns in subq, and to filter by rownb</span>
+<span class="n">subq</span> <span class="o">=</span> <span class="n">subq</span><span class="o">.</span><span class="n">subquery</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;subq&quot;</span><span class="p">,</span> <span class="n">with_labels</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">q</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">sa</span><span class="o">.</span><span class="n">orm</span><span class="o">.</span><span class="n">aliased</span><span class="p">(</span><span class="n">Document</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="n">subq</span><span class="p">))</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">subq</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">rownb</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+</code></pre></div>
+
+
 <p>Hope this helps !</p>
 </section>
 
 
       <footer class="container" style="font-size:80%; text-align:center;">
-        <p>martinkirch.github.io &copy; 2020</p>
+        <p>
+          Text, images and programs by Martin Kirchgessner<br/>
+          licensed under
+          <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">Creative Commons BY-NC-SA 4.0</a>.
+        </p>
       </footer>
     </main>
   </body>
