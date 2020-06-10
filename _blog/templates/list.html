@@ -3,34 +3,39 @@
 {% block title %} {{ site_title }} - Martin Kirchgessner{% endblock %}
 
 {% block content %}
-    <div class="page-header">
-      <h1>{{ page_title }}</h1>
-      <p class="lead">{{ page_brefing }}</p>
-    </div>
-      {% for item in page_items %}
-        <h2><a href="/{{ item['page_url'] }}">{{ item['page_title'] }}</a></h2>
-        <small>
-            {% for tag in item['page_tags'] %}
-                <a href="/tag/{{ tag|replace(' ', '-') }}.html">
-                    <span class="label label-default">{{ tag }}</span></a>
-            {% endfor %}
-        </small>
-        <p>{{ item['page_briefing'] }}</p>
-        <hr />
-      {% endfor %}
-      {% if total_pages > 0 %}
-              <ul class="pagination">
-                {% for page in range(total_pages) %}
-                    {% if page_number == page %}
-                        <li class="active"><a href="#">{{ page_number }} <span class="sr-only">(current)</span></a></li>
-                    {% else %}
-                        {% if tag %}
-                            <li><a href="/tag/{{ tag }}/page{{ page }}.html">{{ page }}</a></li>
-                        {% else %}
-                            <li><a href="/page{{ page }}.html">{{ page }}</a></li>
-                        {% endif %}
-                    {% endif %}
+    {% if page_title != site_title %}
+    <header class="container">
+        <h1>{{ page_title }}</h1>
+        <p>{{ page_brefing }}</p>
+    </header>
+    {% endif %}
+    {% for item in page_items %}
+        <section class="container">
+            <h3><a href="/{{ item['page_url'] }}">{{ item['page_title'] }}</a></h3>
+            <small>
+                {% for tag in item['page_tags'] %}
+                    <a href="/tag/{{ tag|replace(' ', '-') }}.html">
+                        <span class="label label-default">{{ tag }}</span></a>
                 {% endfor %}
-              </ul>
+            </small>
+            <p>{{ item['page_briefing'] }}</p>
+        </section>
+    {% endfor %}
+
+      {% if total_pages > 0 %}
+      <section class="container">
+          Page:
+        {% for page in range(total_pages) %}
+            {% if page_number == page %}
+                {{ page_number }}
+            {% else %}
+                {% if tag %}
+                    <a href="/tag/{{ tag }}/page{{ page }}.html">{{ page }}</a>
+                {% else %}
+                    <a href="/page{{ page }}.html">{{ page }}</a>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+      </section>
       {% endif %}
 {% endblock %}

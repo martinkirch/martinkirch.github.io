@@ -1,82 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title> Quickly guess your data's distribution with PostGreSQL </title>
     <meta name="description" content="Given a million scores, how to quickly have an idea of their distribution?"/>
     <meta name="keywords" content=" data, postgres, statistics, in_english" />
-
-    <!-- Bootstrap -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-
+    
+    <link rel="stylesheet" href="https://unpkg.com/normalize.css">
+    <link rel="stylesheet" href="https://unpkg.com/concrete.css">
     <link href="/pygments.css" rel="stylesheet">
-
     <style>
-      pre{
-        background: #eee;
-        padding:1em;
+      body {
+        font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+      }
+      section.container p {
+        text-align: justify;
       }
     </style>
   </head>
   <body>
-    <nav class="navbar">
-        <div class="navbar-header">
-          <a class="navbar-brand" href="/">C'est toi le titre</a>
+    <main>
+      <header class="container">
+        <div style="float:right;">
+          
+          
+            <a href="/tags.html">Tags</a>
+          
+          
         </div>
-        <ul class="nav navbar-nav navbar-right">
-            
-                
-                    <li><a href="/">All posts</a></li>
-                
-                    <li><a href="/tags.html">Tags</a></li>
-                
-            
-          </ul>
-      </div>
-    </nav>
+        <p><a href="/">C'est toi le titre</a></p>
+        <hr />
+      </header>
 
-    <div class="container">
       
-<div itemscope itemtype="http://schema.org/NewsArticle">
-  <meta itemscope itemprop="mainEntityOfPage"  itemType="https://schema.org/WebPage" itemid="http://martinkirch.github.io/2018-02-05/distribution-discovery-with-postgres.html"/>
-  <div class="page-header">
-    <h1 itemprop="name">Quickly guess your data's distribution with PostGreSQL</h1>
+<header class="container">
+  <h1>Quickly guess your data's distribution with PostGreSQL</h1>
+  
+  
+  <p style="float:right">Martin Kirchgessner, 2018-02-05</p>
+  
+  <p>
+    Tags : 
     
-  </div>
+    <a href="/tag/data.html">data</a>&nbsp;
+    
+    <a href="/tag/postgres.html">postgres</a>&nbsp;
+    
+    <a href="/tag/statistics.html">statistics</a>&nbsp;
+    
+    <a href="/tag/in_english.html">in_english</a>&nbsp;
+    
+  </p>
+  <hr style="clear:both;"/>
+</header>
 
-  <small>Tags : 
-    
-      <a href="/tag/data.html">
-          <span class="label label-default" itemprop="about">data</span>
-      </a>
-    
-      <a href="/tag/postgres.html">
-          <span class="label label-default" itemprop="about">postgres</span>
-      </a>
-    
-      <a href="/tag/statistics.html">
-          <span class="label label-default" itemprop="about">statistics</span>
-      </a>
-    
-      <a href="/tag/in_english.html">
-          <span class="label label-default" itemprop="about">in_english</span>
-      </a>
-    
-    
-        <p class="text-right">
-            Posted on <span itemprop="datePublished">2018-02-05</span>
-            <span itemprop="author" itemscope itemtype="https://schema.org/Person">
-              by <span itemprop="name">Martin Kirchgessner</span>
-            </span>
-        </p>
-    
-    </small>
-
-    <div class="col-md-8 col-md-offset-2">
-      <p>In this post we get back to basics!</p>
+<section class="container">
+  <p>In this post we get back to basics!</p>
 <p>When designing a scoring function we quickly need to know how scores are distributed
 over our data. The distribution you need of course depends on the final purpose
 of the scoring function. But wether it's for ordering or for selecting rows
@@ -145,19 +123,12 @@ understand that the majority of our rows have a null score.</p>
 <li>compute deciles</li>
 </ol>
 <p>Then you will likely be able to decide if your scoring function fits your needs or not.</p>
-    </div>
+</section>
 
-</div>
 
-    </div>
-    <hr />
-    <footer>
-      <div class="container">
-        <div class="row text-center">
-          
-        </div>
-        <p class="text-center"><small>martinkirch.github.io &copy; 2020</small></p>
-      </div>
-    </footer>
+      <footer class="container" style="font-size:80%; text-align:center;">
+        <p>martinkirch.github.io &copy; 2020</p>
+      </footer>
+    </main>
   </body>
 </html>

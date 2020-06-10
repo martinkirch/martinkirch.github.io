@@ -3,32 +3,22 @@
 {% block title %} {{ page_title }} {% endblock %}
 
 {% block content %}
-<div itemscope itemtype="http://schema.org/NewsArticle">
-  <meta itemscope itemprop="mainEntityOfPage"  itemType="https://schema.org/WebPage" itemid="http://{{ site_url }}/{{ page_url }}"/>
-  <div class="page-header">
-    <h1 itemprop="name">{{ page_title }}</h1>
-    {% if page_brefing %}<p class="lead" itemprop="description">{{ page_brefing }}</p>{% endif %}
-  </div>
-
-  <small>Tags : 
+<header class="container">
+  <h1>{{ page_title }}</h1>
+  {% if page_brefing %}<p>{{ page_brefing }}</p>{% endif %}
+  {% if page_date %}
+  <p style="float:right">{{ page_author }}, {{ page_date }}</p>
+  {% endif %}
+  <p>
+    Tags : 
     {% for tag in page_tags %}
-      <a href="/tag/{{ tag|replace(' ', '-') }}.html">
-          <span class="label label-default" itemprop="about">{{ tag }}</span>
-      </a>
+    <a href="/tag/{{ tag|replace(' ', '-') }}.html">{{ tag }}</a>&nbsp;
     {% endfor %}
-    {% if page_date %}
-        <p class="text-right">
-            Posted on <span itemprop="datePublished">{{ page_date }}</span>
-            <span itemprop="author" itemscope itemtype="https://schema.org/Person">
-              by <span itemprop="name">{{ page_author }}</span>
-            </span>
-        </p>
-    {% endif %}
-    </small>
+  </p>
+  <hr style="clear:both;"/>
+</header>
 
-    <div class="col-md-8 col-md-offset-2">
-      {{ page_content }}
-    </div>
-
-</div>
+<section class="container">
+  {{ page_content }}
+</section>
 {% endblock %}
