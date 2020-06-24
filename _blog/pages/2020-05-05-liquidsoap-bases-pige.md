@@ -92,11 +92,18 @@ habituel (`apt`, `yum`, etc) mais il a souvent du retard.
 Donc on va plutôt passer par [OCaml Package Manager](https://opam.ocaml.org/).
 C'est un peu plus long et lourd (ici `~/.opam` consomme 1.2GB) mais plus à jour.
 
-Dans la plupart des distribs cela consiste a installer le package `opam`
-(sous Debian stable si `opam` fait des trucs étranges genre manger toute la RAM, re-essayez
-après `apt remove gringo`).
-Puis, en tant que l'utilisateur qui lancera Liquidsoap, lancer `opam init`, répondre avec entrain `y` aux deux questions,
-et voilà enfin les deux commandes d'installation :
+Dans la plupart des distribs cela consiste a installer le package `opam`.
+Sous Debian stable, si `opam` fait des trucs étranges genre manger toute la RAM, re-essayez
+après `apt remove gringo`.
+En cas d'erreurs ou d'installation étrange,
+par exemple si à la fin vous n'avez pas [la dernière version](https://github.com/savonet/liquidsoap/releases), 
+effacez tout (`rm -rf ~/.opam`)
+et passez plutôt par [l'installation manuelle d'opam](https://opam.ocaml.org/doc/Install.html).
+
+Une fois `opam` installé : en tant que l'utilisateur qui lancera Liquidsoap,
+lancer `opam init` et répondre avec entrain `y` aux deux questions.
+
+Après `opam init`, voilà enfin les deux commandes d'installation :
 
     opam depext taglib mad lame vorbis opus cry samplerate alsa pulseaudio faad fdkaac flac inotify ladspa magic ogg shine soundtouch ssl xmlplaylist yojson liquidsoap
 

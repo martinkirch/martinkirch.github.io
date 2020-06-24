@@ -133,11 +133,16 @@ Beaucoup de distributions fournissent un paquet <code>liquidsoap</code> dans le 
 habituel (<code>apt</code>, <code>yum</code>, etc) mais il a souvent du retard.
 Donc on va plutôt passer par <a href="https://opam.ocaml.org/">OCaml Package Manager</a>.
 C'est un peu plus long et lourd (ici <code>~/.opam</code> consomme 1.2GB) mais plus à jour.</p>
-<p>Dans la plupart des distribs cela consiste a installer le package <code>opam</code>
-(sous Debian stable si <code>opam</code> fait des trucs étranges genre manger toute la RAM, re-essayez
-après <code>apt remove gringo</code>).
-Puis, en tant que l'utilisateur qui lancera Liquidsoap, lancer <code>opam init</code>, répondre avec entrain <code>y</code> aux deux questions,
-et voilà enfin les deux commandes d'installation :</p>
+<p>Dans la plupart des distribs cela consiste a installer le package <code>opam</code>.
+Sous Debian stable, si <code>opam</code> fait des trucs étranges genre manger toute la RAM, re-essayez
+après <code>apt remove gringo</code>.
+En cas d'erreurs ou d'installation étrange,
+par exemple si à la fin vous n'avez pas <a href="https://github.com/savonet/liquidsoap/releases">la dernière version</a>, 
+effacez tout (<code>rm -rf ~/.opam</code>)
+et passez plutôt par <a href="https://opam.ocaml.org/doc/Install.html">l'installation manuelle d'opam</a>.</p>
+<p>Une fois <code>opam</code> installé : en tant que l'utilisateur qui lancera Liquidsoap,
+lancer <code>opam init</code> et répondre avec entrain <code>y</code> aux deux questions.</p>
+<p>Après <code>opam init</code>, voilà enfin les deux commandes d'installation :</p>
 <div class="codehilite"><pre><span></span><code><span class="n">opam</span> <span class="n">depext</span> <span class="n">taglib</span> <span class="n">mad</span> <span class="n">lame</span> <span class="n">vorbis</span> <span class="n">opus</span> <span class="n">cry</span> <span class="n">samplerate</span> <span class="n">alsa</span> <span class="n">pulseaudio</span> <span class="n">faad</span> <span class="n">fdkaac</span> <span class="n">flac</span> <span class="n">inotify</span> <span class="n">ladspa</span> <span class="n">magic</span> <span class="n">ogg</span> <span class="n">shine</span> <span class="n">soundtouch</span> <span class="n">ssl</span> <span class="n">xmlplaylist</span> <span class="n">yojson</span> <span class="n">liquidsoap</span>
 
 <span class="n">opam</span> <span class="n">install</span> <span class="n">taglib</span> <span class="n">mad</span> <span class="n">lame</span> <span class="n">vorbis</span> <span class="n">opus</span> <span class="n">cry</span> <span class="n">samplerate</span> <span class="n">alsa</span> <span class="n">pulseaudio</span> <span class="n">faad</span> <span class="n">fdkaac</span> <span class="n">flac</span> <span class="n">inotify</span> <span class="n">ladspa</span> <span class="n">magic</span> <span class="n">ogg</span> <span class="n">shine</span> <span class="n">soundtouch</span> <span class="n">ssl</span> <span class="n">xmlplaylist</span> <span class="n">yojson</span> <span class="n">liquidsoap</span>
