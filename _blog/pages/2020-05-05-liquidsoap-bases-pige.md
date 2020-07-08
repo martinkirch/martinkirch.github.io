@@ -579,7 +579,7 @@ Par exemple si le script s'appelle `radio.liq`, exécutez
 depuis le répertoire `liquidsoap-daemon` :
 
     ./daemonize-liquidsoap.sh radio
-    sudo systemctl start pige-liquidsoap
+    sudo systemctl start radio-liquidsoap
 
 Et c'est parti ! Il démarrera tout seul au prochain boot.
 Le fichier journal (où Liquidsoap raconte ce qu'il fait) sera
