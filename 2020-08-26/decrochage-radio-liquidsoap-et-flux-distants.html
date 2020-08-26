@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title> Décrocher une radio Liquidsoap sur des flux distants </title>
+    <meta name="description" content="Parce que parfois les autres radios font de bons programmes aussi."/>
+    <meta name="keywords" content=" liquidsoap, en_français" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="alternate" type="application/rss+xml" title="Flux RSS des articles" href="/rss.xml" />
+
+    <link rel="stylesheet" href="https://unpkg.com/normalize.css">
+    <link rel="stylesheet" href="https://unpkg.com/concrete.css">
+    <link href="/pygments.css" rel="stylesheet">
+    <style>
+      body {
+        font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+      }
+      code, kbd, samp, pre {
+        font-family: "Courier New", Courier, monospace;
+        font-weight: bold;
+      }
+      section.container p {
+        text-align: justify;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="container">
+        <div style="float:right;">
+          
+          
+            <a href="/rss.xml">RSS</a>
+          
+            <a href="/tags.html">Tags</a>
+          
+          
+        </div>
+        <p><a href="/">C'est toi le titre</a></p>
+        <hr />
+      </header>
+
+      
+<header class="container">
+  <h1>Décrocher une radio Liquidsoap sur des flux distants</h1>
+  
+  
+  <p style="float:right">Martin Kirchgessner, 2020-08-26</p>
+  
+  <p>
+    Tags : 
+    
+    <a href="/tag/liquidsoap.html">liquidsoap</a>&nbsp;
+    
+    <a href="/tag/en_français.html">en_français</a>&nbsp;
+    
+  </p>
+  <hr style="clear:both;"/>
+</header>
+
+<section class="container">
+  <p>Depuis <a href="/tag/liquidsoap.html">les articles précédents</a> nous avons utilisé Liquidsoap
+pour faire une radio qui passe de la musique et des émissions enregistrées,
+en supposant que par ailleurs vous avez une bascule matérielle pour faire des émissions en direct.
+Dans cet article nous allons plutôt faire ce direct à distance,
+en envoyant un flux encodé via Internet,
+ou bien laisser l'antenne à un autre flux.
+Cela fait partie des fonctions de base de Liquidsoap,
+mais il y a quelques subtilités d'écriture ou de configuration.</p>
+<p>Nous allons commencer par deux méthodes pour les décrochages vers des flux existants.
+Enfin nous verrons comment faire de Liquidsoap un serveur prêt à retransmettre votre flux -
+autrement dit : comment prendre l'antenne.</p>
+<h2>Reprendre un flux externe dès qu'il apparaît</h2>
+<p>Dans un script Liquidsoap, créer une source qui lit un flux distant s'écrit en une ligne :</p>
+<div class="codehilite"><pre><span></span><code><span class="n">source</span> <span class="o">=</span> <span class="n">input</span><span class="o">.</span><span class="n">http</span><span class="o">(</span><span class="s2">&quot;http://live.campusgrenoble.org:9000/rcg112&quot;</span><span class="o">)</span>
+</code></pre></div>
+
+
+<p>Et voilà !
+Si le flux vient d'une adresse en HTTPs, utilisez plutôt <code>input.https</code>.
+Cette source inclut un tampon (pré-chargement) de lecture de quelques secondes
+pour amortir les aléas du téléchargement,
+mais il n'est peut-être pas suffisant.
+Attention à d'abord expérimenter hors antenne pour vérifier que le débit est suffisamment constant !
+En cas d'erreurs vous pouvez ajuster le tampon avec les options
+<code>buffer</code> (tampon minimum avant de démarrer, en secondes)
+et <code>max</code> (durée maximum en mémoire tampon, en secondes).
+Les secondes doivent être des nombres en virgule flottante,
+donc s'écrire avec un point, ce qui donne par exemple :</p>
+<div class="codehilite"><pre><span></span><code><span class="n">source</span> <span class="o">=</span> <span class="n">input</span><span class="o">.</span><span class="n">http</span><span class="o">(</span><span class="s2">&quot;http://live.campusgrenoble.org:9000/rcg112&quot;</span><span class="o">,</span> <span class="n">buffer</span><span class="o">=</span><span class="mi">3</span><span class="o">.,</span> <span class="n">max</span><span class="o">=</span><span class="mi">30</span><span class="o">.)</span>
+</code></pre></div>
+
+
+<p>Pour un flux temporaire (typiquement, celui créé par une émission en direct)
+il n'y a plus qu'à diriger cette source vers une sortie.
+En mettant cette source en premier dans la liste d'un <code>fallback</code>,
+par exemple parmi les émissions et musiques des articles précédents,
+elle prendra l'antenne dès qu'elle sera disponible.</p>
+<p>Cette méthode n'est adaptée qu'à un flux qui n'existe que temporairement :
+la source <code>input.http</code> est faite pour jouer dès qu'elle peut.
+C'est à dire que :</p>
+<ul>
+<li>elle essaye de se connecter au flux toutes les deux secondes
+(vous pouvez changer ce délai avec le paramètre 
+<a href="https://www.liquidsoap.info/doc-1.4.2/reference.html#input.http">poll_delay</a>), et</li>
+<li>si elle n'est pas reprise par une sortie (parce qu'un <code>switch</code> ou <code>fallback</code>
+  a donné la main à une autre source) elle va quand même lire le flux et le mettre
+  en mémoire tampon. <em>Très vite</em>, votre log va se <em>remplir</em> de messages comme
+  <code>Buffer overrun: Dropping 0.03s. Consider increasing the max buffer size!</code></li>
+</ul>
+<p>Donc ça n'est pas terrible pour un flux qui joue en permanence,
+mais qu'on ne voudrait reprendre que sur une plage horaire donnée. Il ne suffirait pas de mettre la source dans un <code>switch</code>.
+On va plutôt affiner la lecture du flux avec une deuxième méthode.</p>
+<h2>Reprendre temporairement un flux externe permanent</h2>
+<p>Il est possible d'activer la source HTTP(s) uniquement quand on veut lui laisser l'antenne.
+Il va nous falloir l'unique moyen de passer des commandes à Liquidsoap pendant l'exécution :
+<a href="https://www.liquidsoap.info/doc-1.4.2/server.html">le serveur</a>.
+Activez-le (par sécurité, en écoutant uniquement sur <code>localhost</code>) en ajoutant au début du script :</p>
+<div class="codehilite"><pre><span></span><code><span class="n">set</span><span class="o">(</span><span class="s2">&quot;server.telnet&quot;</span><span class="o">,</span> <span class="bp">true</span><span class="o">)</span>
+<span class="n">set</span><span class="o">(</span><span class="s2">&quot;server.telnet.bind_addr&quot;</span><span class="o">,</span> <span class="s2">&quot;127.0.0.1&quot;</span><span class="o">)</span>
+</code></pre></div>
+
+
+<p>En créant la source <code>input.http</code>,
+on ajoute le paramètre <code>autostart=false</code> pour qu'elle ne commence pas la lecture du flux tout de suite :</p>
+<div class="codehilite"><pre><span></span><code><span class="n">source</span> <span class="o">=</span> <span class="n">input</span><span class="o">.</span><span class="n">http</span><span class="o">(</span><span class="n">id</span><span class="o">=</span><span class="s2">&quot;rcg&quot;</span><span class="o">,</span> <span class="s2">&quot;http://live.campusgrenoble.org:9000/rcg112&quot;</span><span class="o">,</span> <span class="n">autostart</span><span class="o">=</span><span class="bp">false</span><span class="o">,</span> <span class="n">buffer</span><span class="o">=</span><span class="mi">3</span><span class="o">.,</span> <span class="n">max</span><span class="o">=</span><span class="mi">30</span><span class="o">.)</span>
+</code></pre></div>
+
+
+<p>On a aussi ajouté <code>id</code>,
+qui donne le nom interne de la source.
+Ce nom interne va être utilisé dans la commande serveur pour démarrer le flux.
+Pour démarrer ou arrêter la source de cet exemple,
+les commandes seront <code>rcg.start</code> et <code>rcg.stop</code>.</p>
+<p>Depuis le script, on peut passer des commandes au serveur avec la fonction <code>server.execute</code>.
+On peut aussi lancer des fonctions à heures fixe
+(plus généralement, dès que le test <code>pred</code> est vrai) grâce à <code>exec_at</code>.
+Cela donne, pour par exemple écouter Radio Campus Grenoble
+tous les jours de 15h à 16h :</p>
+<div class="codehilite"><pre><span></span><code><span class="n">exec_at</span><span class="o">(</span><span class="n">pred</span><span class="o">={</span> <span class="mi">15</span><span class="n">h00m00s</span> <span class="o">},</span>
+  <span class="o">{</span> <span class="kt">list</span><span class="o">.</span><span class="n">iter</span><span class="o">(</span><span class="n">log</span><span class="o">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;ecoute_RCG&quot;</span><span class="o">),</span> <span class="n">server</span><span class="o">.</span><span class="n">execute</span><span class="o">(</span><span class="s2">&quot;rcg.start&quot;</span><span class="o">))</span> <span class="o">}</span>
+<span class="o">)</span>
+<span class="n">exec_at</span><span class="o">(</span><span class="n">pred</span><span class="o">={</span> <span class="mi">16</span><span class="n">h00m00s</span> <span class="o">},</span>
+  <span class="o">{</span> <span class="kt">list</span><span class="o">.</span><span class="n">iter</span><span class="o">(</span><span class="n">log</span><span class="o">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;ecoute_RCG&quot;</span><span class="o">),</span> <span class="n">server</span><span class="o">.</span><span class="n">execute</span><span class="o">(</span><span class="s2">&quot;rcg.stop&quot;</span><span class="o">))</span> <span class="o">}</span>
+<span class="o">)</span>
+</code></pre></div>
+
+
+<p>Ici <code>list.iter</code> et <code>log</code> s'assurent que tout ce que pourrait écrire la commande sera bien recopiée dans le log.
+Le label <code>ecoute_RCG</code> est décoratif :
+c'est un prefixe pour les messages de log qui passeront par là, mettez ce que vous voulez.
+Par contre le nom avant <code>.stop</code> (ou <code>.start</code>) <em>doit</em> correspondre à l'<code>id</code> de la source !</p>
+<h2>Gestion du temps et buffers</h2>
+<p>A cause du <em>buffer</em> (tampon de pré-chargement) de la source <code>input.http</code>,
+il y a quelques subtilités à prendre en compte si vous êtes à la seconde près.</p>
+<p>Avec la méthode ci-dessus, la source ne commencera à télécharger qu'à 15h00:00.
+Comme notre fonction <code>pred</code> est <code>15h00m00s</code>,
+si on démarre Liquidsoap à 15h00:01 rien ne se passera avant le lendemain 15h.
+De plus notre source à été réglée avec <code>buffer=3.</code>,
+ce qui veut dire qu'il faut pré-charger 3 secondes de son pour que Liquidsoap
+considère la source comme disponible.
+Enfin, il peut y avoir un délai entre le moment
+où on lance la lecture du flux et le moment
+où le flux nous arrive du serveur - comptez entre quelques milisecondes et
+(si vous faites dans l'intercontinental) quelques secondes.
+Du coup, la source sera effectivement activée à 15h00:03 et des poussières.</p>
+<p>Inversement, quand on arrête le flux il reste du son dans le buffer :
+avec nos réglages (<code>max=30.</code>), il peut contenir jusqu'à 30 secondes.
+Dans l'exemple ci-dessus, le téléchargement du flux va s'arrêter dès la commande <code>stop</code>,
+donc à 16h00:00.
+Mais si à ce moment-là on a 23 secondes de son pré-chargées,
+la source sera encore disponible pendant 23 secondes.
+Et il va falloir diffuser ces 23 secondes.
+Si une autre source prend l'antenne à 16h00:00
+(par exemple, parce qu'elle est devant dans <code>fallback</code> et qu'elle commence à 16h00:00)
+alors nos 23 secondes resteront dans le buffer ;
+Liquidsoap les jouera dès que possible,
+selon ce qu'il y a dans le reste du script,
+mais probablement trop en décalé pour ça ait un sens à l'antenne.
+Autrement dit : en combinant une <code>input.http</code> aux autres sources,
+attention à vous assurer qu'elle continue à jouer tant qu'elle est disponible !</p>
+<p>Le réglage <code>buffer=3., max=30.</code> est indicatif - et un peu large,
+pour éviter les coupures.
+Si vous êtes sûrs de la connection entre les deux machines, mettez moins.
+En tout cas : <strong>faites des tests avec différents réglages</strong> pour <code>buffer</code> et <code>max</code>.</p>
+<h2>Recevoir un flux directement dans Liquidsoap</h2>
+<p>Nous allons maintenant créer une source qui se comporte comme un serveur Icecast avec <code>input.harbor</code>.
+Coté "client", donc depuis le studio qui créé le flux,
+on connectera l'appli vers la machine qui éxecute Liquidsoap au point de montage configuré.
+Dans cet exemple, le point de montage s'appellera <code>direct</code> :</p>
+<div class="codehilite"><pre><span></span><code><span class="n">direct_exterieur</span> <span class="o">=</span> <span class="n">input</span><span class="o">.</span><span class="n">harbor</span><span class="o">(</span><span class="n">id</span><span class="o">=</span><span class="s2">&quot;direct_exterieur&quot;</span><span class="o">,</span>
+  <span class="n">buffer</span><span class="o">=</span><span class="mi">2</span><span class="o">.,</span>
+  <span class="n">max</span><span class="o">=</span><span class="mi">10</span><span class="o">.,</span>
+  <span class="n">port</span><span class="o">=</span><span class="mi">8005</span><span class="o">,</span>
+  <span class="n">user</span><span class="o">=</span><span class="s2">&quot;michel&quot;</span><span class="o">,</span>
+  <span class="n">password</span><span class="o">=</span><span class="s2">&quot;superphrasedepasse&quot;</span><span class="o">,</span>
+  <span class="s2">&quot;direct&quot;</span>
+<span class="o">)</span>
+</code></pre></div>
+
+
+<p>La méthode la plus simple pour intégrer cette source est de la mettre en tête
+d'un <code>fallback(track_sensitive=false</code>.
+Ainsi, on prend l'antenne dès que le flux est lancé :</p>
+<div class="codehilite"><pre><span></span><code><span class="n">grille</span> <span class="o">=</span> <span class="n">fallback</span><span class="o">([</span><span class="n">direct_exterieur</span><span class="o">,</span> <span class="n">emissions</span><span class="o">,</span> <span class="n">semaine_musicale</span><span class="o">],</span>
+  <span class="n">transitions</span><span class="o">=[</span><span class="n">crossfade_3s</span><span class="o">,</span> <span class="n">crossfade_3s</span><span class="o">,</span> <span class="n">crossfade_3s</span><span class="o">],</span>
+  <span class="n">track_sensitive</span><span class="o">=</span><span class="bp">false</span><span class="o">,</span> <span class="n">id</span><span class="o">=</span><span class="s2">&quot;grille&quot;</span><span class="o">)</span>
+</code></pre></div>
+
+
+<p>A partir de là vous avez un serveur qui attend des connections :
+c'est simple à configurer,
+mais on entre dans des considérations qui dépassent Liquidsoap
+et sont importantes puisqu'il s'agit de la sécurité de la machine
+et donc de votre antenne.
+Lisez donc section en entier avant de vous lancer.</p>
+<p>Vous devrez aussi vous assurer que vous pouvez atteindre le serveur depuis Internet :
+si vous n'avez pas une IP fixe ou un cable qui y mène directement,
+utilisez la
+<a href="https://www.commentcamarche.net/contents/527-nat-translation-d-adresses-port-forwarding-et-port-triggering">NAT</a>
+ou un <a href="https://doc.ubuntu-fr.org/ssh">tunnel SSH</a>.
+Après cet article lisez également le chapitre sur <code>harbor</code> dans
+<a href="https://www.liquidsoap.info/doc-1.4.2/harbor.html">la documentation de Liquidsoap</a>.</p>
+<p><strong>Pour la sécurité : le plus important reste d'utiliser des mots de passe longs (vous pouvez mettre des phrases) et de les changer régulièrement (grand minimum tous les ans).</strong>
+Vous pouvez en plus utiliser les techniques suivantes.</p>
+<h3>Séparer la gestion des mots de passes du script Liquidsoap</h3>
+<p>Au lieu de préciser <code>user</code> et <code>password</code> lors de la définition de la source,
+on peut plutôt lui passer une fonction <code>auth</code> qui décidera de quoi faire dès que quelqu'un essaira de se connecter.
+En plus d'éviter de devoir redémmarrer Liquidsoap pour changer le(s) mot(s) de passe,
+cela permet de donner/retirer des comptes individuels :
+c'est le plus sûr si cette prise d'antenne est régulière par des personnes différentes.</p>
+<p>Pour enregistrer/chiffrer/vérifier ces mots de passes,
+il faut un programme extérieur :
+vous pouvez utiliser <code>auth.py</code>,
+script Python téléchargeable <a href="auth.py">ici</a>.
+La source se créé alors comme ci-dessous,
+avec une fonction <code>auth</code> qui appelle <code>auth.py</code> :</p>
+<div class="codehilite"><pre><span></span><code><span class="n">def</span> <span class="n">auth</span><span class="o">(</span><span class="n">user</span><span class="o">,</span><span class="n">password</span><span class="o">)</span> <span class="o">=</span> 
+  <span class="n">ret</span> <span class="o">=</span> <span class="n">get_process_output</span><span class="o">(</span><span class="s2">&quot;/home/radio/auth.py #{user} #{password}&quot;</span><span class="o">)</span>
+  <span class="k">if</span> <span class="kt">string</span><span class="o">.</span><span class="n">trim</span><span class="o">(</span><span class="n">ret</span><span class="o">)</span> <span class="o">==</span> <span class="s2">&quot;ok&quot;</span> <span class="k">then</span>
+    <span class="bp">true</span>
+  <span class="k">else</span>
+    <span class="bp">false</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="n">direct_exterieur</span> <span class="o">=</span> <span class="n">input</span><span class="o">.</span><span class="n">harbor</span><span class="o">(</span><span class="n">id</span><span class="o">=</span><span class="s2">&quot;direct_exterieur&quot;</span><span class="o">,</span>
+  <span class="n">buffer</span><span class="o">=</span><span class="mi">2</span><span class="o">.,</span>
+  <span class="n">max</span><span class="o">=</span><span class="mi">10</span><span class="o">.,</span>
+  <span class="n">auth</span><span class="o">=</span><span class="n">auth</span><span class="o">,</span>
+  <span class="n">port</span><span class="o">=</span><span class="mi">8005</span><span class="o">,</span>
+  <span class="s2">&quot;direct&quot;</span>  <span class="o">#</span> <span class="n">mountpoint</span> <span class="n">name</span>
+<span class="o">)</span>
+</code></pre></div>
+
+
+<p>On utilise <code>string.trim</code> car en Python <code>print("ok")</code> donne très exactement <code>"ok\n"</code>.</p>
+<p>Avec les deux blocs ci-desus, Liquidsoap appelera directement notre script pour vérifier les mots de passe.
+Pour enregistrer des mots de passe,
+l'utilisation d'<a href="auth.py">auth.py</a> est expliquée au début du script ou si vous l'appelez sans arguments.</p>
+<h3>Chiffrer le flux</h3>
+<p>On recommande aussi d'utiliser une connection chiffrée,
+pour que le flux et surtout le mot de passe donné au début du flux ne soient pas transférés en clair sur Internet.
+Pour cela, assurez-vous aussi que votre client Icecast peut streamer avec SSL.
+La source à utiliser coté Liquidsoap est la variante
+<a href="https://www.liquidsoap.info/doc-1.4.2/reference.html#input.harbor.ssl">input.harbor.ssl</a>.
+Cette source a besoin de certificats SSL.</p>
+<p>Si votre machine est accessible directement depuis Internet (en particulier son port 80),
+vous pouvez obtenir des certificats en installant <a href="https://certbot.eff.org/">Certbot</a>.
+Exécutez alors <code>sudo certbot certonly --standalone</code>
+Une fois les certificats obtenus,
+indiquez les à Liquidsoap en ajoutant au début du script :</p>
+<div class="codehilite"><pre><span></span><code><span class="n">set</span><span class="o">(</span><span class="s2">&quot;harbor.ssl.certificate&quot;</span><span class="o">,</span> <span class="s2">&quot;/etc/letsencrypt/live/myradio.com/cert.pem&quot;</span><span class="o">)</span>
+<span class="n">set</span><span class="o">(</span><span class="s2">&quot;harbor.ssl.private_key`&quot;</span><span class="o">,</span> <span class="s2">&quot;/etc/letsencrypt/live/myradio.com/privkey.pem&quot;</span><span class="o">)</span>
+</code></pre></div>
+
+
+<p>Si votre clé privée nécessite un mot de passe, ajoutez une ligne <code>set("harbor.ssl.password", "...")</code>.</p>
+<h2>Conclusion</h2>
+<p>Voilà donc toutes les possiblités de décrochages avec Liquidsoap.
+Elles prennent la forme de sources,
+que l'ont peut ajouter et intégrer à celles vues dans <a href="/tag/liquidsoap.html">les articles précédents</a>.
+Vous trouverez <a href="03-decrochages">ici le fichier <code>.liq</code> complet</a> ;
+le schéma des sources et éléments qu'il utilise commence à se complexifier :</p>
+<p><img alt="schemadelaradioliquidsoap" src="01-schema.png" /></p>
+</section>
+
+
+      <footer class="container" style="font-size:70%; text-align:center;">
+        <p>
+          Text, images and programs by Martin Kirchgessner<br/>
+          licensed under
+          <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">Creative Commons BY-NC-SA 4.0</a>.
+        </p>
+      </footer>
+    </main>
+  </body>
+</html>
