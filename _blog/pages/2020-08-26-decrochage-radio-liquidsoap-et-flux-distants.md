@@ -261,7 +261,7 @@ Si votre clé privée nécessite un mot de passe, ajoutez une ligne `set("harbor
 Voilà donc toutes les possiblités de décrochages avec Liquidsoap.
 Elles prennent la forme de sources,
 que l'ont peut ajouter et intégrer à celles vues dans [les articles précédents](/tag/liquidsoap.html).
-Vous trouverez [ici le fichier `.liq` complet](03-decrochages) ;
+Vous trouverez [ici le fichier `.liq` complet](03-decrochages.liq) ;
 le schéma des sources et éléments qu'il utilise commence à se complexifier :
 
-![schemadelaradioliquidsoap](01-schema.png)
+![schemadelaradioliquidsoap](03-radio.png)
