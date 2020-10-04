@@ -10,7 +10,7 @@ BEET = "/home/martin/beets/bin/beet"
 set("server.telnet", true)
 set("server.telnet.bind_addr", "127.0.0.1") # commandes de serveur faisables uniquement localement
 
-set("harbor.bind_addrs", "192.168.1.166") # optionnel. restreint au réseau local.
+set("harbor.bind_addrs", ["192.168.1.166"]) # optionnel. restreint au réseau local.
 
 
 ############################ EMISSIONS ######################################
