@@ -141,23 +141,22 @@ mais probablement trop en décalé pour ça ait un sens à l'antenne.
 Autrement dit : en combinant une `input.http` aux autres sources,
 attention à vous assurer qu'elle continue à jouer tant qu'elle est disponible !
 
-Le réglage `buffer=3., max=30.` est indicatif - et un peu large,
-pour éviter les coupures.
+Je vous recommande de mettre `buffer=10., max=30.`.
 Si vous êtes sûrs de la connection entre les deux machines, mettez moins.
-En tout cas : **faites des tests avec différents réglages** pour `buffer` et `max`.
 
 
 ## Recevoir un flux directement dans Liquidsoap
 
 Nous allons maintenant créer une source qui se comporte comme un serveur Icecast avec `input.harbor`.
 Coté "client", donc depuis le studio qui créé le flux,
-on connectera l'appli vers la machine qui éxecute Liquidsoap au point de montage configuré.
+on connectera l'appli (utilisez [butt](https://danielnoethen.de/butt/) !)
+vers la machine qui éxecute Liquidsoap au point de montage configuré.
 Dans cet exemple, le point de montage s'appellera `direct` :
 
     :::ocaml
     direct_exterieur = input.harbor(id="direct_exterieur",
-      buffer=2.,
-      max=10.,
+      buffer=10.,
+      max=30.,
       port=8005,
       user="michel",
       password="superphrasedepasse",
@@ -173,14 +172,7 @@ Ainsi, on prend l'antenne dès que le flux est lancé :
       transitions=[crossfade_3s, crossfade_3s, crossfade_3s],
       track_sensitive=false, id="grille")
 
-A partir de là vous avez un serveur qui attend des connections :
-c'est simple à configurer,
-mais on entre dans des considérations qui dépassent Liquidsoap
-et sont importantes puisqu'il s'agit de la sécurité de la machine
-et donc de votre antenne.
-Lisez donc section en entier avant de vous lancer.
-
-Vous devrez aussi vous assurer que vous pouvez atteindre le serveur depuis Internet :
+Vous devrez vous assurer que vous pouvez atteindre le serveur depuis Internet :
 si vous n'avez pas une IP fixe ou un cable qui y mène directement,
 utilisez la
 [NAT](https://www.commentcamarche.net/contents/527-nat-translation-d-adresses-port-forwarding-et-port-triggering)
@@ -188,13 +180,18 @@ ou un [tunnel SSH](https://doc.ubuntu-fr.org/ssh).
 Après cet article lisez également le chapitre sur `harbor` dans
 [la documentation de Liquidsoap](https://www.liquidsoap.info/doc-1.4.2/harbor.html).
 
+A partir de là vous avez un serveur qui attend des connections :
+c'est simple à configurer,
+mais on entre dans des considérations qui dépassent Liquidsoap
+et sont importantes puisqu'il s'agit de la sécurité de la machine
+et donc de votre antenne.
 **Pour la sécurité : le plus important reste d'utiliser des mots de passe longs (vous pouvez mettre des phrases) et de les changer régulièrement (grand minimum tous les ans).**
 Vous pouvez en plus utiliser les techniques suivantes.
 
 ### Séparer la gestion des mots de passes du script Liquidsoap
 
 Au lieu de préciser `user` et `password` lors de la définition de la source,
-on peut plutôt lui passer une fonction `auth` qui décidera de quoi faire dès que quelqu'un essaira de se connecter.
+on peut plutôt lui passer une fonction `auth` qui décidera quoi faire dès que quelqu'un essaira de se connecter.
 En plus d'éviter de devoir redémmarrer Liquidsoap pour changer le(s) mot(s) de passe,
 cela permet de donner/retirer des comptes individuels :
 c'est le plus sûr si cette prise d'antenne est régulière par des personnes différentes.
@@ -217,8 +214,8 @@ avec une fonction `auth` qui appelle `auth.py` :
     end
 
     direct_exterieur = input.harbor(id="direct_exterieur",
-      buffer=2.,
-      max=10.,
+      buffer=10.,
+      max=30.,
       auth=auth,
       port=8005,
       "direct"  # mountpoint name
@@ -234,7 +231,7 @@ l'utilisation d'[auth.py](auth.py) est expliquée au début du script ou si vous
 
 ### Chiffrer le flux
 
-On recommande aussi d'utiliser une connection chiffrée,
+Vous pouvez aussi utiliser une connection chiffrée,
 pour que le flux et surtout le mot de passe donné au début du flux ne soient pas transférés en clair sur Internet.
 Pour cela, assurez-vous aussi que votre client Icecast peut streamer avec SSL.
 La source à utiliser coté Liquidsoap est la variante
@@ -258,10 +255,18 @@ Si votre clé privée nécessite un mot de passe, ajoutez une ligne `set("harbor
 
 ## Conclusion
 
-Voilà donc toutes les possiblités de décrochages avec Liquidsoap.
+Nous voilà avec plusieurs possiblités de décrochages avec Liquidsoap.
 Elles prennent la forme de sources,
 que l'ont peut ajouter et intégrer à celles vues dans [les articles précédents](/tag/liquidsoap.html).
 Vous trouverez [ici le fichier `.liq` complet](03-decrochages.liq) ;
 le schéma des sources et éléments qu'il utilise commence à se complexifier :
 
 ![schemadelaradioliquidsoap](03-radio.png)
+
+Ces sources sont plutôt sensibles aux connections irregulières :
+si le flux n'arrive plus, la source est considérée comme non disponible
+alors Liquidsoap zappera vers la prochaine source disponible.
+Selon ce qu'il y a dans le reste du script, ça peut donner des surprises -
+par exemple, avec le script complet ci-dessus, ça passe un jingle...
+avant de revenir au flux, si la réception à repris.
+Un buffer de 10 secondes n'est pas de trop, mais surtout testez d'avance !

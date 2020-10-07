@@ -179,18 +179,17 @@ selon ce qu'il y a dans le reste du script,
 mais probablement trop en décalé pour ça ait un sens à l'antenne.
 Autrement dit : en combinant une <code>input.http</code> aux autres sources,
 attention à vous assurer qu'elle continue à jouer tant qu'elle est disponible !</p>
-<p>Le réglage <code>buffer=3., max=30.</code> est indicatif - et un peu large,
-pour éviter les coupures.
-Si vous êtes sûrs de la connection entre les deux machines, mettez moins.
-En tout cas : <strong>faites des tests avec différents réglages</strong> pour <code>buffer</code> et <code>max</code>.</p>
+<p>Je vous recommande de mettre <code>buffer=10., max=30.</code>.
+Si vous êtes sûrs de la connection entre les deux machines, mettez moins.</p>
 <h2>Recevoir un flux directement dans Liquidsoap</h2>
 <p>Nous allons maintenant créer une source qui se comporte comme un serveur Icecast avec <code>input.harbor</code>.
 Coté "client", donc depuis le studio qui créé le flux,
-on connectera l'appli vers la machine qui éxecute Liquidsoap au point de montage configuré.
+on connectera l'appli (utilisez <a href="https://danielnoethen.de/butt/">butt</a> !)
+vers la machine qui éxecute Liquidsoap au point de montage configuré.
 Dans cet exemple, le point de montage s'appellera <code>direct</code> :</p>
 <div class="codehilite"><pre><span></span><code><span class="n">direct_exterieur</span> <span class="o">=</span> <span class="n">input</span><span class="o">.</span><span class="n">harbor</span><span class="o">(</span><span class="n">id</span><span class="o">=</span><span class="s2">&quot;direct_exterieur&quot;</span><span class="o">,</span>
-  <span class="n">buffer</span><span class="o">=</span><span class="mi">2</span><span class="o">.,</span>
-  <span class="n">max</span><span class="o">=</span><span class="mi">10</span><span class="o">.,</span>
+  <span class="n">buffer</span><span class="o">=</span><span class="mi">10</span><span class="o">.,</span>
+  <span class="n">max</span><span class="o">=</span><span class="mi">30</span><span class="o">.,</span>
   <span class="n">port</span><span class="o">=</span><span class="mi">8005</span><span class="o">,</span>
   <span class="n">user</span><span class="o">=</span><span class="s2">&quot;michel&quot;</span><span class="o">,</span>
   <span class="n">password</span><span class="o">=</span><span class="s2">&quot;superphrasedepasse&quot;</span><span class="o">,</span>
@@ -208,24 +207,23 @@ Ainsi, on prend l'antenne dès que le flux est lancé :</p>
 </code></pre></div>
 
 
-<p>A partir de là vous avez un serveur qui attend des connections :
-c'est simple à configurer,
-mais on entre dans des considérations qui dépassent Liquidsoap
-et sont importantes puisqu'il s'agit de la sécurité de la machine
-et donc de votre antenne.
-Lisez donc section en entier avant de vous lancer.</p>
-<p>Vous devrez aussi vous assurer que vous pouvez atteindre le serveur depuis Internet :
+<p>Vous devrez vous assurer que vous pouvez atteindre le serveur depuis Internet :
 si vous n'avez pas une IP fixe ou un cable qui y mène directement,
 utilisez la
 <a href="https://www.commentcamarche.net/contents/527-nat-translation-d-adresses-port-forwarding-et-port-triggering">NAT</a>
 ou un <a href="https://doc.ubuntu-fr.org/ssh">tunnel SSH</a>.
 Après cet article lisez également le chapitre sur <code>harbor</code> dans
 <a href="https://www.liquidsoap.info/doc-1.4.2/harbor.html">la documentation de Liquidsoap</a>.</p>
-<p><strong>Pour la sécurité : le plus important reste d'utiliser des mots de passe longs (vous pouvez mettre des phrases) et de les changer régulièrement (grand minimum tous les ans).</strong>
+<p>A partir de là vous avez un serveur qui attend des connections :
+c'est simple à configurer,
+mais on entre dans des considérations qui dépassent Liquidsoap
+et sont importantes puisqu'il s'agit de la sécurité de la machine
+et donc de votre antenne.
+<strong>Pour la sécurité : le plus important reste d'utiliser des mots de passe longs (vous pouvez mettre des phrases) et de les changer régulièrement (grand minimum tous les ans).</strong>
 Vous pouvez en plus utiliser les techniques suivantes.</p>
 <h3>Séparer la gestion des mots de passes du script Liquidsoap</h3>
 <p>Au lieu de préciser <code>user</code> et <code>password</code> lors de la définition de la source,
-on peut plutôt lui passer une fonction <code>auth</code> qui décidera de quoi faire dès que quelqu'un essaira de se connecter.
+on peut plutôt lui passer une fonction <code>auth</code> qui décidera quoi faire dès que quelqu'un essaira de se connecter.
 En plus d'éviter de devoir redémmarrer Liquidsoap pour changer le(s) mot(s) de passe,
 cela permet de donner/retirer des comptes individuels :
 c'est le plus sûr si cette prise d'antenne est régulière par des personnes différentes.</p>
@@ -245,8 +243,8 @@ avec une fonction <code>auth</code> qui appelle <code>auth.py</code> :</p>
 <span class="k">end</span>
 
 <span class="n">direct_exterieur</span> <span class="o">=</span> <span class="n">input</span><span class="o">.</span><span class="n">harbor</span><span class="o">(</span><span class="n">id</span><span class="o">=</span><span class="s2">&quot;direct_exterieur&quot;</span><span class="o">,</span>
-  <span class="n">buffer</span><span class="o">=</span><span class="mi">2</span><span class="o">.,</span>
-  <span class="n">max</span><span class="o">=</span><span class="mi">10</span><span class="o">.,</span>
+  <span class="n">buffer</span><span class="o">=</span><span class="mi">10</span><span class="o">.,</span>
+  <span class="n">max</span><span class="o">=</span><span class="mi">30</span><span class="o">.,</span>
   <span class="n">auth</span><span class="o">=</span><span class="n">auth</span><span class="o">,</span>
   <span class="n">port</span><span class="o">=</span><span class="mi">8005</span><span class="o">,</span>
   <span class="s2">&quot;direct&quot;</span>  <span class="o">#</span> <span class="n">mountpoint</span> <span class="n">name</span>
@@ -259,7 +257,7 @@ avec une fonction <code>auth</code> qui appelle <code>auth.py</code> :</p>
 Pour enregistrer des mots de passe,
 l'utilisation d'<a href="auth.py">auth.py</a> est expliquée au début du script ou si vous l'appelez sans arguments.</p>
 <h3>Chiffrer le flux</h3>
-<p>On recommande aussi d'utiliser une connection chiffrée,
+<p>Vous pouvez aussi utiliser une connection chiffrée,
 pour que le flux et surtout le mot de passe donné au début du flux ne soient pas transférés en clair sur Internet.
 Pour cela, assurez-vous aussi que votre client Icecast peut streamer avec SSL.
 La source à utiliser coté Liquidsoap est la variante
@@ -277,12 +275,19 @@ indiquez les à Liquidsoap en ajoutant au début du script :</p>
 
 <p>Si votre clé privée nécessite un mot de passe, ajoutez une ligne <code>set("harbor.ssl.password", "...")</code>.</p>
 <h2>Conclusion</h2>
-<p>Voilà donc toutes les possiblités de décrochages avec Liquidsoap.
+<p>Nous voilà avec plusieurs possiblités de décrochages avec Liquidsoap.
 Elles prennent la forme de sources,
 que l'ont peut ajouter et intégrer à celles vues dans <a href="/tag/liquidsoap.html">les articles précédents</a>.
 Vous trouverez <a href="03-decrochages.liq">ici le fichier <code>.liq</code> complet</a> ;
 le schéma des sources et éléments qu'il utilise commence à se complexifier :</p>
 <p><img alt="schemadelaradioliquidsoap" src="03-radio.png" /></p>
+<p>Ces sources sont plutôt sensibles aux connections irregulières :
+si le flux n'arrive plus, la source est considérée comme non disponible
+alors Liquidsoap zappera vers la prochaine source disponible.
+Selon ce qu'il y a dans le reste du script, ça peut donner des surprises -
+par exemple, avec le script complet ci-dessus, ça passe un jingle...
+avant de revenir au flux, si la réception à repris.
+Un buffer de 10 secondes n'est pas de trop, mais surtout testez d'avance !</p>
 </section>
 
 
